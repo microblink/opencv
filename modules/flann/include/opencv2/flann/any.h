@@ -48,7 +48,9 @@ struct base_any_policy
     virtual void* get_value(void** src) = 0;
     virtual const void* get_value(void* const * src) = 0;
     virtual ::size_t get_size() = 0;
+#ifdef __cpp_rtti
     virtual const std::type_info& type() = 0;
+#endif
     virtual void print(std::ostream& out, void* const* src) = 0;
     virtual ~base_any_policy() {}
 };
@@ -57,7 +59,9 @@ template<typename T>
 struct typed_base_any_policy : base_any_policy
 {
     virtual ::size_t get_size() CV_OVERRIDE { return sizeof(T); }
+#ifdef __cpp_rtti
     virtual const std::type_info& type() CV_OVERRIDE { return typeid(T); }
+#endif
 
 };
 
@@ -295,11 +299,13 @@ public:
         return *r;
     }
 
+#ifdef __cpp_rtti
     /// Returns true if the any contains no value.
     bool empty() const
     {
         return policy->type() == typeid(anyimpl::empty_any);
     }
+#endif
 
     /// Frees any allocated memory, and sets the value to NULL.
     void reset()
@@ -308,13 +314,14 @@ public:
         policy = anyimpl::SinglePolicy<anyimpl::empty_any>::get_policy();
     }
 
+#ifdef __cpp_rtti
     /// Returns true if the two types are the same.
     bool compatible(const any& x) const
     {
         return policy->type() == x.policy->type();
     }
 
-    /// Returns if the type is compatible with the policy
+    // Returns if the type is compatible with the policy
     template<typename T>
     bool has_type()
     {
@@ -325,6 +332,7 @@ public:
     {
         return policy->type();
     }
+#endif
 
     friend std::ostream& operator <<(std::ostream& out, const any& any_val);
 };

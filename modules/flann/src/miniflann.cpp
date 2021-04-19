@@ -118,7 +118,9 @@ void IndexParams::getAll(std::vector<String>& names,
         catch (...) {}
 #endif
 
+    #ifdef __cpp_rtti
         strValues.push_back(it->second.type().name());
+    #endif
 
 #ifndef OCV_EXCEPTIONS_DISABLED
         try

@@ -151,13 +151,15 @@
 #endif
 
 #include <atomic>
+#ifdef HAVE_SWEATER // MB patch
 namespace cv
 {
-#ifdef HAVE_SWEATER // MB patch
     void parallel_for_pthreads(const cv::Range& range, const cv::ParallelLoopBody& body, double nstripes);
     size_t parallel_pthreads_get_threads_num();
     void parallel_pthreads_set_threads_num(int num);
-#endif
+
+    using namespace cv::parallel;
+#endif // MB patch
 
 #ifndef HAVE_SWEATER // MB patch
 #include "parallel_impl.hpp"
@@ -169,8 +171,6 @@ using namespace cv;
 namespace cv {
 
 ParallelLoopBody::~ParallelLoopBody() {}
-
-using namespace cv::parallel;
 
 namespace {
 
@@ -715,6 +715,7 @@ void setNumThreads( int threads_ )
     {
         api->setNumThreads(numThreads);
     }
+#endif
 
 #if defined HAVE_SWEATER
     // unsupported

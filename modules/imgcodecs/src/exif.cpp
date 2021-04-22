@@ -117,8 +117,9 @@ bool ExifReader::parseExif(unsigned char* data, const size_t size)
     }
 
 #ifndef OCV_EXCEPTIONS_DISABLED
-    try {
-#endf
+    try
+#endif
+    {
         parseExif();
         if( !m_exif.empty() )
         {

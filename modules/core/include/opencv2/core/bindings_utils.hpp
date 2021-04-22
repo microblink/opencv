@@ -116,11 +116,13 @@ String dumpRange(const Range& argument)
     }
 }
 
+#ifndef OCV_EXCEPTIONS_DISABLED
 CV_WRAP static inline
 void testRaiseGeneralException()
 {
     throw std::runtime_error("exception text");
 }
+#endif
 
 CV_WRAP static inline
 AsyncArray testAsyncArray(InputArray argument)

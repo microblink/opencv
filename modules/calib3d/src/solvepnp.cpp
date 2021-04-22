@@ -334,12 +334,15 @@ bool solvePnPRansac(InputArray _opoints, InputArray _ipoints,
 
     opoints_inliers.resize(npoints1);
     ipoints_inliers.resize(npoints1);
+#ifndef OCV_EXCEPTIONS_DISABLED
     try
+#endif
     {
         result = solvePnP(opoints_inliers, ipoints_inliers, cameraMatrix,
                           distCoeffs, rvec, tvec, useExtrinsicGuess,
                           (flags == SOLVEPNP_P3P || flags == SOLVEPNP_AP3P) ? SOLVEPNP_EPNP : flags) ? 1 : -1;
     }
+#ifndef OCV_EXCEPTIONS_DISABLED
     catch (const cv::Exception& e)
     {
         if (flags == SOLVEPNP_ITERATIVE &&
@@ -360,6 +363,7 @@ bool solvePnPRansac(InputArray _opoints, InputArray _ipoints,
             throw;
         }
     }
+#endif
 
     if (result <= 0)
     {

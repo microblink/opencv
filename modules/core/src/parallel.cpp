@@ -167,10 +167,9 @@ namespace cv
 #include "opencv2/core/detail/exception_ptr.hpp"  // CV__EXCEPTION_PTR = 1 if std::exception_ptr is available
 
 using namespace cv;
+using namespace cv::parallel;
 
 namespace cv {
-
-ParallelLoopBody::~ParallelLoopBody() {}
 
 namespace {
 
@@ -344,10 +343,13 @@ namespace {
             CV_TRACE_ARG_VALUE(range_end, "range.end", (int64)r.end);
 #endif
 
+#ifndef OCV_EXCEPTIONS_DISABLED
             try
+#endif
             {
                 (*ctx.body)(r);
             }
+#ifndef OCV_EXCEPTIONS_DISABLED
 #if CV__EXCEPTION_PTR
             catch (...)
             {
@@ -366,6 +368,7 @@ namespace {
             {
                 ctx.recordException("Unknown exception");
             }
+#endif
 #endif
 
             if (!ctx.is_rng_used && !(cv::theRNG() == ctx.rng))
@@ -512,16 +515,20 @@ void parallel_for_(const cv::Range& range, const cv::ParallelLoopBody& body, dou
       isNotNestedRegion = !flagNestedParallelFor.exchange(true);
     if (isNotNestedRegion)
     {
+#ifndef OCV_EXCEPTIONS_DISABLED
         try
+#endif
         {
             parallel_for_impl(range, body, nstripes);
             flagNestedParallelFor = false;
         }
+#ifndef OCV_EXCEPTIONS_DISABLED
         catch (...)
         {
             flagNestedParallelFor = false;
             throw;
         }
+#endif
     }
     else // nested parallel_for_() calls are not parallelized
     {

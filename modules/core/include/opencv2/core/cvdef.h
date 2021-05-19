@@ -347,6 +347,9 @@ enum CpuFeatures {
 #if !defined(CV_STRONG_ALIGNMENT) && defined(__arm__) && !(defined(__aarch64__) || defined(_M_ARM64))
 // int*, int64* should be propertly aligned pointers on ARMv7
 #define CV_STRONG_ALIGNMENT 1
+#elif !defined(CV_STRONG_ALIGNMENT) && defined(__EMSCRIPTEN__) && !defined(NDEBUG)
+// int*, int64* should be propertly aligned pointers on emscripten for safe heap checks
+#define CV_STRONG_ALIGNMENT 1
 #endif
 #if !defined(CV_STRONG_ALIGNMENT)
 #define CV_STRONG_ALIGNMENT 0

@@ -1321,6 +1321,9 @@ Point_<_Tp> operator + (const Point_<_Tp>& a, const Point_<_Tp>& b)
 
 template<typename _Tp> static inline
 Point_<_Tp> operator - (const Point_<_Tp>& a, const Point_<_Tp>& b)
+#ifdef __clang__
+    __attribute__(( no_sanitize( "undefined" ) ))
+#endif
 {
     return Point_<_Tp>( saturate_cast<_Tp>(a.x - b.x), saturate_cast<_Tp>(a.y - b.y) );
 }

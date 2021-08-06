@@ -1901,14 +1901,18 @@ static gboolean icvOnClose( GtkWidget* widget, GdkEvent* /*event*/, gpointer use
     if( window->signature == CV_WINDOW_MAGIC_VAL &&
         window->frame == widget )
     {
+#ifndef OCV_EXCEPTIONS_DISABLED
         try
+#endif
         {
             icvDeleteWindow_(window);
         }
+#ifndef OCV_EXCEPTIONS_DISABLED
         catch (...)
         {
             CV_LOG_WARNING(NULL, "OpenCV/GTK: unexpected C++ exception in icvDeleteWindow_");
         }
+#endif
     }
     return TRUE;
 }

@@ -156,15 +156,19 @@ protected:
     void initBackend()
     {
         AutoLock lock(getInitializationMutex());
+#ifndef OCV_EXCEPTIONS_DISABLED
         try
+#endif
         {
             if (!initialized)
                 loadPlugin();
         }
+#ifndef OCV_EXCEPTIONS_DISABLED
         catch (...)
         {
             CV_LOG_INFO(NULL, "UI: exception during plugin loading: " << baseName_ << ". SKIP");
         }
+#endif
         initialized = true;
     }
     void loadPlugin();
@@ -245,7 +249,9 @@ void PluginUIBackendFactory::loadPlugin()
         {
             continue;
         }
+#ifndef OCV_EXCEPTIONS_DISABLED
         try
+#endif
         {
             auto pluginBackend = std::make_shared<PluginUIBackend>(lib);
             if (!pluginBackend)
@@ -262,10 +268,12 @@ void PluginUIBackendFactory::loadPlugin()
             backend = pluginBackend;
             return;
         }
+#ifndef OCV_EXCEPTIONS_DISABLED
         catch (...)
         {
             CV_LOG_WARNING(NULL, "UI: exception during plugin initialization: " << toPrintablePath(plugin) << ". SKIP");
         }
+#endif
     }
 }
 

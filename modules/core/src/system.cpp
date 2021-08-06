@@ -1835,15 +1835,19 @@ void* TLSDataContainer::getData() const
     {
         // Create new data instance and save it to TLS storage
         pData = createDataInstance();
+#ifndef OCV_EXCEPTIONS_DISABLED
         try
+#endif
         {
             getTlsStorage().setData(key_, pData);
         }
+#ifndef OCV_EXCEPTIONS_DISABLED
         catch (...)
         {
             deleteDataInstance(pData);
             throw;
         }
+#endif
     }
     return pData;
 }

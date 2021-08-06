@@ -701,12 +701,15 @@ size_t imcount_(const String& filename, int flags)
     decoder->setSource(filename);
 
     // read the header to make sure it succeeds
+#ifndef OCV_EXCEPTIONS_DISABLED
     try
+#endif
     {
         // read the header to make sure it succeeds
         if (!decoder->readHeader())
             return 0;
     }
+#ifndef OCV_EXCEPTIONS_DISABLED
     catch (const cv::Exception& e)
     {
         std::cerr << "imcount_('" << filename << "'): can't read header: " << e.what() << std::endl << std::flush;
@@ -717,6 +720,7 @@ size_t imcount_(const String& filename, int flags)
         std::cerr << "imcount_('" << filename << "'): can't read header: unknown exception" << std::endl << std::flush;
         return 0;
     }
+#endif
 
     size_t result = 1;
 

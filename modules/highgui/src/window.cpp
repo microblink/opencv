@@ -83,7 +83,11 @@ static std::shared_ptr<UIWindow> findWindow_(const std::string& name)
                 windowsMap.erase(i);
                 return std::shared_ptr<UIWindow>();
             }
+        #ifdef __cpp_rtti
             auto window = std::dynamic_pointer_cast<UIWindow>(ui_base);
+        #else
+            auto window = std::static_pointer_cast<UIWindow>(ui_base);
+        #endif
             return window;
         }
     }
@@ -462,7 +466,12 @@ void cv::namedWindow( const String& winname, int flags )
             auto ui_base = i->second;
             if (ui_base)
             {
+            #ifdef __cpp_rtti
                 auto window = std::dynamic_pointer_cast<UIWindow>(ui_base);
+            #else
+                auto window = std::static_pointer_cast<UIWindow>(ui_base);
+            #endif
+
                 if (!window)
                 {
                     CV_LOG_ERROR(NULL, "OpenCV/UI: Can't create window: '" << winname << "'");
@@ -979,7 +988,11 @@ void cv::imshow( const String& winname, InputArray _img )
             auto ui_base = i->second;
             if (ui_base)
             {
+            #ifdef __cpp_rtti
                 auto window = std::dynamic_pointer_cast<UIWindow>(ui_base);
+            #else
+                auto window = std::static_pointer_cast<UIWindow>(ui_base);
+            #endif
                 if (!window)
                 {
                     CV_LOG_ERROR(NULL, "OpenCV/UI: invalid window name: '" << winname << "'");

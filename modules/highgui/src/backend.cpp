@@ -73,7 +73,9 @@ std::shared_ptr<UIBackend> createUIBackend()
             }
             isKnown = true;
         }
+#ifndef OCV_EXCEPTIONS_DISABLED
         try
+#endif
         {
             CV_LOG_DEBUG(NULL, "UI: trying backend: " << info.name << " (priority=" << info.priority << ")");
             if (!info.backendFactory)
@@ -92,6 +94,7 @@ std::shared_ptr<UIBackend> createUIBackend()
             getUIBackendName() = info.name;
             return backend;
         }
+#ifndef OCV_EXCEPTIONS_DISABLED
         catch (const std::exception& e)
         {
             CV_LOG_WARNING(NULL, "UI: can't initialize " << info.name << " backend: " << e.what());
@@ -100,6 +103,7 @@ std::shared_ptr<UIBackend> createUIBackend()
         {
             CV_LOG_WARNING(NULL, "UI: can't initialize " << info.name << " backend: Unknown C++ exception");
         }
+#endif
     }
     if (name.empty())
     {

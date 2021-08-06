@@ -766,7 +766,11 @@ std::string getCapturePluginVersion(
 #if OPENCV_HAVE_FILESYSTEM_SUPPORT && defined(ENABLE_PLUGINS)
     using namespace impl;
     CV_Assert(backend_factory);
+#ifdef __cpp_rtti
     PluginBackendFactory* plugin_backend_factory = dynamic_cast<PluginBackendFactory*>(backend_factory.get());
+#else
+    PluginBackendFactory* plugin_backend_factory = static_cast<PluginBackendFactory*>(backend_factory.get());
+#endif
     CV_Assert(plugin_backend_factory);
     return plugin_backend_factory->getCapturePluginVersion(version_ABI, version_API);
 #else
@@ -786,7 +790,11 @@ std::string getWriterPluginVersion(
 #if OPENCV_HAVE_FILESYSTEM_SUPPORT && defined(ENABLE_PLUGINS)
     using namespace impl;
     CV_Assert(backend_factory);
+#ifdef __cpp_rtti
     PluginBackendFactory* plugin_backend_factory = dynamic_cast<PluginBackendFactory*>(backend_factory.get());
+#else
+    PluginBackendFactory* plugin_backend_factory = static_cast<PluginBackendFactory*>(backend_factory.get());
+#endif
     CV_Assert(plugin_backend_factory);
     return plugin_backend_factory->getWriterPluginVersion(version_ABI, version_API);
 #else

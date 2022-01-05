@@ -715,7 +715,9 @@ macro(ocv_compiler_optimization_process_sources SOURCES_VAR_NAME LIBS_VAR_NAME T
         if(NOT __opt_found)
           ocv_get_smart_file_name(fname_ "${fname}")
           message(STATUS "Excluding from source files list: ${fname_}")
-          if ( XCODE ) # MB patch begin
+          # MB patch begin
+          set( INTEL_OPTS AVX AVX2 SSE4_1 SSE4_2 ) # MacOS machines don't support AVX512
+          if ( XCODE AND ${OPT_} IN_LIST INTEL_OPTS )
             message(STATUS "Excluding from source files list: ${fname_} only for non-x86_64 slices")
             list(APPEND __result "${fname}")
             # TODO: exclude NEON from Intel if required in future (no such sources currently found)

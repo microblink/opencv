@@ -687,7 +687,10 @@ bool FileStorage::Impl::open(const char *filename_or_buf, int _flags, const char
         strbufpos = bufOffset;
         bufofs = 0;
 
-        try {
+    #ifndef OCV_EXCEPTIONS_DISABLED
+        try
+    #endif
+        {
             char *ptr = bufferStart();
             ptr[0] = ptr[1] = ptr[2] = '\0';
             FileNode root_nodes(fs_ext, 0, 0);
@@ -728,11 +731,13 @@ bool FileStorage::Impl::open(const char *filename_or_buf, int _flags, const char
                 }
             }
         }
+    #ifndef OCV_EXCEPTIONS_DISABLED
         catch (...) {
             is_opened = true;
             release();
             throw;
         }
+    #endif
 
         // release resources that we do not need anymore
         closeFile();

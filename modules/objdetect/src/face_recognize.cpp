@@ -53,7 +53,11 @@ public:
         }else if(dis_type == DisType::FR_NORM_L2){
             return norm(face_feature1, face_feature2);
         }else{
+        #ifndef OCV_EXCEPTIONS_DISABLED
             throw std::invalid_argument("invalid parameter " + std::to_string(dis_type));
+        #else
+            return std::numeric_limits<double>::quiet_NaN();
+        #endif
         }
 
     };

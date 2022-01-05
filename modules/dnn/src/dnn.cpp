@@ -3713,16 +3713,20 @@ struct Net::Impl : public detail::NetImplBase
                 }
                 else if (preferableBackend == DNN_BACKEND_VKCOM)
                 {
+                #ifndef OCV_EXCEPTIONS_DISABLED
                     try
+                #endif
                     {
                         forwardVkCom(ld.outputBlobsWrappers, node);
                     }
+                #ifndef OCV_EXCEPTIONS_DISABLED
                     catch (const cv::Exception& e)
                     {
                         CV_LOG_ERROR(NULL, "forwardVkCom failed, fallback to CPU implementation. " << e.what());
                         it->second = Ptr<BackendNode>();
                         forwardLayer(ld);
                     }
+                #endif
                 }
                 else
                 {
@@ -3863,10 +3867,13 @@ struct Net::Impl : public detail::NetImplBase
         Ptr<Layer> l = layerData.getLayerInstance();
         CV_Assert(l);
         bool layerSupportInPlace = false;
+    #ifndef OCV_EXCEPTIONS_DISABLED
         try
+    #endif
         {
             layerSupportInPlace = l->getMemoryShapes(is, requiredOutputs, os, ints);
         }
+    #ifndef OCV_EXCEPTIONS_DISABLED
         catch (const cv::Exception& e)
         {
             CV_LOG_ERROR(NULL, "OPENCV/DNN: [" << l->type << "]:(" << l->name << "): getMemoryShapes() throws exception." <<
@@ -3888,9 +3895,12 @@ struct Net::Impl : public detail::NetImplBase
             CV_LOG_ERROR(NULL, "Exception message: " << e.what());
             throw;
         }
+    #endif
         layerShapes.supportInPlace = layerSupportInPlace;
 
+    #ifndef OCV_EXCEPTIONS_DISABLED
         try
+    #endif
         {
             for (int i = 0; i < ints.size(); i++)
                 CV_CheckGT(total(ints[i]), 0, "");
@@ -3898,6 +3908,7 @@ struct Net::Impl : public detail::NetImplBase
             for (int i = 0; i < os.size(); i++)
                 CV_CheckGT(total(os[i]), 0, "");
         }
+    #ifndef OCV_EXCEPTIONS_DISABLED
         catch (const cv::Exception& e)
         {
             CV_LOG_ERROR(NULL, "OPENCV/DNN: [" << l->type << "]:(" << l->name << "): getMemoryShapes() post validation failed." <<
@@ -3920,6 +3931,7 @@ struct Net::Impl : public detail::NetImplBase
             CV_LOG_ERROR(NULL, "Exception message: " << e.what());
             throw;
         }
+    #endif
     }
 
     void getLayersShapes(const ShapesVec& netInputShapes,
@@ -4103,12 +4115,15 @@ struct Net::Impl : public detail::NetImplBase
 #ifndef OPENCV_DNN_DISABLE_NETWORK_AUTO_DUMP
         string dumpFileNameBase = getDumpFileNameBase();
         string dumpFileName = dumpFileNameBase + ".dot";
+    #ifndef OCV_EXCEPTIONS_DISABLED
         try
+    #endif
         {
             string dumpStr = dump();
             std::ofstream out(dumpFileName.c_str(), std::ios::out | std::ios::binary);
             out << dumpStr;
         }
+    #ifndef OCV_EXCEPTIONS_DISABLED
         catch (const std::exception& e)
         {
             std::ofstream out((dumpFileName + ".error").c_str(), std::ios::out);
@@ -4119,6 +4134,7 @@ struct Net::Impl : public detail::NetImplBase
             std::ofstream out((dumpFileName + ".error").c_str(), std::ios::out);
             out << "Can't dump: unknown exception" << std::endl;
         }
+    #endif
 #endif
     }
 };

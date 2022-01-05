@@ -630,7 +630,9 @@ UMat Mat::getUMat(AccessFlag accessFlags, UMatUsageFlags usageFlags) const
         CV_XADD(&(u->refcount), 1);
         CV_XADD(&(u->urefcount), 1);
     }
+#ifndef OCV_EXCEPTIONS_DISABLED
     try
+#endif
     {
         hdr.flags = flags;
         hdr.usageFlags = usageFlags;
@@ -641,6 +643,7 @@ UMat Mat::getUMat(AccessFlag accessFlags, UMatUsageFlags usageFlags) const
         hdr.addref();
         return hdr;
     }
+#ifndef OCV_EXCEPTIONS_DISABLED
     catch(...)
     {
         if (u != NULL)
@@ -651,6 +654,7 @@ UMat Mat::getUMat(AccessFlag accessFlags, UMatUsageFlags usageFlags) const
         new_u->currAllocator->deallocate(new_u);
         throw;
     }
+#endif
 
 }
 
@@ -1083,7 +1087,9 @@ Mat UMat::getMat(AccessFlag accessFlags) const
     // TODO Support ACCESS_READ (ACCESS_WRITE) without unnecessary data transfers
     accessFlags |= ACCESS_RW;
     UMatDataAutoLock autolock(u);
+#ifndef OCV_EXCEPTIONS_DISABLED
     try
+#endif
     {
         if(CV_XADD(&u->refcount, 1) == 0)
             u->currAllocator->map(u, accessFlags);
@@ -1098,11 +1104,13 @@ Mat UMat::getMat(AccessFlag accessFlags) const
             return hdr;
         }
     }
+#ifndef OCV_EXCEPTIONS_DISABLED
     catch(...)
     {
         CV_XADD(&u->refcount, -1);
         throw;
     }
+#endif
     CV_XADD(&u->refcount, -1);
     CV_Assert(u->data != 0 && "Error mapping of UMat to host memory.");
     return Mat();

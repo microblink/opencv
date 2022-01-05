@@ -36,7 +36,7 @@ except (AttributeError, cv.error) as e:
 # if SURF not available, ORB is default
 FEATURES_FIND_CHOICES['orb'] = cv.ORB.create
 try:
-    FEATURES_FIND_CHOICES['sift'] = cv.xfeatures2d_SIFT.create
+    FEATURES_FIND_CHOICES['sift'] = cv.SIFT_create
 except AttributeError:
     print("SIFT not available")
 try:
@@ -436,7 +436,7 @@ def main():
     sizes = []
     blender = None
     timelapser = None
-    # https://github.com/opencv/opencv/blob/master/samples/cpp/stitching_detailed.cpp#L725 ?
+    # https://github.com/opencv/opencv/blob/4.x/samples/cpp/stitching_detailed.cpp#L725 ?
     for idx, name in enumerate(img_names):
         full_img = cv.imread(name)
         if not is_compose_scale_set:
@@ -450,7 +450,8 @@ def main():
                 cameras[i].focal *= compose_work_aspect
                 cameras[i].ppx *= compose_work_aspect
                 cameras[i].ppy *= compose_work_aspect
-                sz = (full_img_sizes[i][0] * compose_scale, full_img_sizes[i][1] * compose_scale)
+                sz = (int(round(full_img_sizes[i][0] * compose_scale)),
+                      int(round(full_img_sizes[i][1] * compose_scale)))
                 K = cameras[i].K().astype(np.float32)
                 roi = warper.warpRoi(sz, K, cameras[i].R)
                 corners.append(roi[0:2])

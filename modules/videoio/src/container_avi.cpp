@@ -128,6 +128,7 @@ struct RiffList
     uint32_t m_size;
     uint32_t m_list_type_cc;
 };
+#pragma pack(pop)
 
 class VideoInputStream
 {
@@ -153,7 +154,6 @@ private:
     String  m_fname;
 };
 
-#pragma pack(pop)
 
 inline VideoInputStream& operator >> (VideoInputStream& is, AviMainHeader& avih)
 {

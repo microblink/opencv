@@ -57,6 +57,7 @@ namespace core {
 
     G_TYPED_KERNEL(GAddC, <GMat(GMat, GScalar, int)>, "org.opencv.core.math.addC") {
         static GMatDesc outMeta(GMatDesc a, GScalarDesc, int ddepth) {
+            GAPI_Assert(a.chan <= 4);
             return a.withDepth(ddepth);
         }
     };
@@ -398,7 +399,7 @@ namespace core {
     };
 
     G_TYPED_KERNEL(GResize, <GMat(GMat,Size,double,double,int)>, "org.opencv.core.transform.resize") {
-        static GMatDesc outMeta(GMatDesc in, Size sz, double fx, double fy, int) {
+        static GMatDesc outMeta(GMatDesc in, Size sz, double fx, double fy, int /*interp*/) {
             if (sz.width != 0 && sz.height != 0)
             {
                 return in.withSize(sz);
@@ -706,7 +707,7 @@ GAPI_EXPORTS GMat subC(const GMat& src, const GScalar& c, int ddepth = -1);
 /** @brief Calculates the per-element difference between given scalar and the matrix.
 
 The function can be replaced with matrix expressions:
-    \f[\texttt{dst} =  \texttt{val} - \texttt{src}\f]
+    \f[\texttt{dst} =  \texttt{c} - \texttt{src}\f]
 
 Depth of the output matrix is determined by the ddepth parameter.
 If ddepth is set to default -1, the depth of output matrix will be the same as the depth of input matrix.
@@ -770,7 +771,10 @@ GAPI_EXPORTS GMat mulC(const GScalar& multiplier, const GMat& src, int ddepth = 
 The function divides one matrix by another:
 \f[\texttt{dst(I) = saturate(src1(I)*scale/src2(I))}\f]
 
-When src2(I) is zero, dst(I) will also be zero. Different channels of
+For integer types when src2(I) is zero, dst(I) will also be zero.
+Floating point case returns Inf/NaN (according to IEEE).
+
+Different channels of
 multi-channel matrices are processed independently.
 The matrices can be single or multi channel. Output matrix must have the same size and depth as src.
 

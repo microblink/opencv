@@ -107,7 +107,6 @@ public:
         {
             outputShapeVec.push_back(inputs[0][i]);
         }
-        CV_Assert(outputShapeVec.size() <= 4);
 
         outputs.resize(inputs.size(), outputShapeVec);
 
@@ -227,6 +226,11 @@ virtual Ptr<BackendNode> initNgraph(const std::vector<Ptr<BackendWrapper> >& inp
     }
 #endif
 
+    virtual bool tryQuantize(const std::vector<std::vector<float> > &scales,
+                             const std::vector<std::vector<int> > &zeropoints, LayerParams& params) CV_OVERRIDE
+    {
+        return true;
+    }
 
     int _startAxis;
     int _endAxis;

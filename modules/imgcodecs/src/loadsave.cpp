@@ -235,8 +235,10 @@ static ImageDecoder findDecoder( const String& filename ) {
     FILE* f= fopen( filename.c_str(), "rb" );
 
     /// in the event of a failure, return an empty image decoder
-    if( !f )
+    if( !f ) {
+        CV_LOG_WARNING(NULL, "imread_('" << filename << "'): can't open/read file: check file path/integrity");
         return ImageDecoder();
+    }
 
     // read the file signature
     String signature(maxlen, ' ');
@@ -377,10 +379,6 @@ static void ApplyExifOrientation(ExifEntry_t orientationTag, Mat& img)
  *
  * @param[in] filename File to load
  * @param[in] flags Flags
- * @param[in] hdrtype { LOAD_CVMAT=0,
- *                      LOAD_IMAGE=1,
- *                      LOAD_MAT=2
- *                    }
  * @param[in] mat Reference to C++ Mat object (If LOAD_MAT)
  *
 */

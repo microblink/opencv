@@ -339,7 +339,7 @@ Integration with [FFmpeg](https://en.wikipedia.org/wiki/FFmpeg) library for deco
 - _swscale_
 - _avresample_ (optional)
 
-Exception is Windows platform where a prebuilt [plugin library containing FFmpeg](https://github.com/opencv/opencv_3rdparty/tree/ffmpeg/master) will be downloaded during a configuration stage and copied to the `bin` folder with all produced libraries.
+Exception is Windows platform where a prebuilt [plugin library containing FFmpeg](https://github.com/opencv/opencv_3rdparty/tree/ffmpeg/4.x) will be downloaded during a configuration stage and copied to the `bin` folder with all produced libraries.
 
 @note [Libav](https://en.wikipedia.org/wiki/Libav) library can be used instead of FFmpeg, but this combination is not actively supported.
 
@@ -589,6 +589,14 @@ Some features have been added specifically for automated build environments, lik
 | `OPENCV_CMAKE_HOOKS_DIR` | _empty_ | OpenCV allows to customize configuration process by adding custom hook scripts at each stage and substage. cmake scripts with predefined names located in the directory set by this variable will be included before and after various configuration stages. Examples of file names: _CMAKE_INIT.cmake_, _PRE_CMAKE_BOOTSTRAP.cmake_, _POST_CMAKE_BOOTSTRAP.cmake_, etc.. Other names are not documented and can be found in the project cmake files by searching for the _ocv_cmake_hook_ macro calls. |
 | `OPENCV_DUMP_HOOKS_FLOW` | _OFF_ | Enables a debug message print on each cmake hook script call. |
 
+## Contrib Modules
+
+Following build options are utilized in `opencv_contrib` modules, as stated [previously](#tutorial_config_reference_general_contrib), these extra modules can be added to your final build by setting `DOPENCV_EXTRA_MODULES_PATH` option.
+
+| Option | Default | Description |
+| ------ | ------- | ----------- |
+| `WITH_CLP` | _OFF_ | Will add [coinor](https://projects.coin-or.org/Clp) linear programming library build support which is required in `videostab` module. Make sure to install the development libraries of coinor-clp. |
+
 
 # Other non-documented options
 
@@ -605,7 +613,6 @@ Some features have been added specifically for automated build environments, lik
 `WITH_CPUFEATURES`
 `WITH_EIGEN`
 `WITH_OPENVX`
-`WITH_CLP`
 `WITH_DIRECTX`
 `WITH_VA`
 `WITH_LAPACK`

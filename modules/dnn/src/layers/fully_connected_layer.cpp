@@ -46,6 +46,7 @@
 #include "../op_halide.hpp"
 #include "../op_inf_engine.hpp"
 #include "../ie_ngraph.hpp"
+#include "../op_webnn.hpp"
 
 #include <opencv2/dnn/shape_utils.hpp>
 
@@ -150,6 +151,7 @@ public:
         return backendId == DNN_BACKEND_OPENCV ||
                backendId == DNN_BACKEND_CUDA ||
                (backendId == DNN_BACKEND_HALIDE && haveHalide() && axis == 1) ||
+               (backendId == DNN_BACKEND_WEBNN && axis == 1) ||
                (((backendId == DNN_BACKEND_INFERENCE_ENGINE_NN_BUILDER_2019 && !blobs.empty()) ||
                 backendId == DNN_BACKEND_INFERENCE_ENGINE_NGRAPH) && axis == 1);
     }
@@ -168,7 +170,7 @@ public:
     class FullyConnected : public ParallelLoopBody
     {
     public:
-        FullyConnected() : srcMat(0), weights(0), biasMat(0), activ(0), dstMat(0), nstripes(0), useAVX(false), useAVX2(false), useAVX512(false) {}
+        FullyConnected() : srcMat(0), weights(0), biasMat(0), activ(0), dstMat(0), nstripes(0), useAVX(false), useAVX2(false), useAVX512(false), useRVV(false) {}
 
         static void run(const Mat& srcMat, const Mat& weights, const Mat& biasMat,
                         Mat& dstMat, const ActivationLayer* activ, int nstripes)
@@ -191,6 +193,7 @@ public:
             p.useAVX = checkHardwareSupport(CPU_AVX);
             p.useAVX2 = checkHardwareSupport(CPU_AVX2);
             p.useAVX512 = CV_CPU_HAS_SUPPORT_AVX512_SKX;
+            p.useRVV = checkHardwareSupport(CPU_RVV);
 
             parallel_for_(Range(0, nstripes), p, nstripes);
         }
@@ -227,17 +230,22 @@ public:
 
             #if CV_TRY_AVX512_SKX
                 if( useAVX512 )
-                    opt_AVX512_SKX::fastGEMM1T( sptr, wptr, wstep, biasptr, dptr, nw, vecsize);
+                    opt_AVX512_SKX::fastGEMM1T( sptr, wptr, wstep, biasptr, dptr, nw, vecsize_aligned);
                 else
             #endif
             #if CV_TRY_AVX2
                 if( useAVX2 )
-                    opt_AVX2::fastGEMM1T( sptr, wptr, wstep, biasptr, dptr, nw, vecsize);
+                    opt_AVX2::fastGEMM1T( sptr, wptr, wstep, biasptr, dptr, nw, vecsize_aligned);
                 else
             #endif
             #if CV_TRY_AVX
                 if( useAVX )
-                    opt_AVX::fastGEMM1T( sptr, wptr, wstep, biasptr, dptr, nw, vecsize);
+                    opt_AVX::fastGEMM1T( sptr, wptr, wstep, biasptr, dptr, nw, vecsize_aligned);
+                else
+            #endif
+            #if CV_TRY_RVV
+                if( useRVV )
+                    opt_RVV::fastGEMM1T( sptr, wptr, wstep, biasptr, dptr, nw, vecsize);
                 else
             #endif
                 {
@@ -293,6 +301,7 @@ public:
         bool useAVX;
         bool useAVX2;
         bool useAVX512;
+        bool useRVV;
     };
 
 #ifdef HAVE_OPENCL
@@ -610,6 +619,79 @@ public:
         return Ptr<BackendNode>(new InfEngineNgraphNode(matmul));
     }
 #endif  // HAVE_DNN_NGRAPH
+
+    virtual bool tryQuantize(const std::vector<std::vector<float> > &scales,
+                             const std::vector<std::vector<int> > &zeropoints, LayerParams& params) CV_OVERRIDE
+    {
+        if (blobs.empty())
+            return false;
+
+        int numOutput = blobs[0].size[0];
+        float inputScale = scales[0][0], outputScale = scales[1][0];
+        int inputZp = zeropoints[0][0];
+
+        Mat weightsQuantized(weightsMat.rows, weightsMat.cols, CV_8S);
+        Mat biasQuantized(1, numOutput, CV_32S);
+        Mat outputMultiplier(1, numOutput, CV_32F);
+
+        double realMin, realMax, weightsScale;
+        for( int i = 0; i < numOutput; i++ )
+        {
+            // Quantize weights
+            cv::minMaxIdx(weightsMat.row(i), &realMin, &realMax);
+            realMin = std::min(realMin, 0.0);
+            realMax = std::max(realMax, 0.0);
+            weightsScale = (realMax == realMin) ? 1.0 : std::max(-realMin, realMax)/127;
+            weightsMat.row(i).convertTo(weightsQuantized.row(i), CV_8S, 1.f/weightsScale);
+
+            // Quantize biases
+            float biasScale = inputScale * weightsScale;
+            biasQuantized.at<int>(i) = (int)std::round(biasMat.at<float>(i)/biasScale) - inputZp*(cv::sum(weightsQuantized.row(i))[0]);
+
+            // Store multiplier
+            outputMultiplier.at<float>(i) = biasScale / outputScale;
+        }
+
+        params.blobs.clear();
+        params.blobs.push_back(weightsQuantized.reshape(1, shape(blobs[0])));
+        params.blobs.push_back(biasQuantized);
+        params.blobs.push_back(outputMultiplier);
+        return true;
+    }
+
+#ifdef HAVE_WEBNN
+    virtual Ptr<BackendNode> initWebnn(const std::vector<Ptr<BackendWrapper> >& inputs, const std::vector<Ptr<BackendNode> >& nodes) CV_OVERRIDE
+    {
+        Ptr<WebnnBackendNode> node = nodes[0].dynamicCast<WebnnBackendNode>();
+        auto& webnnInpOperand = node->operand;
+        auto& webnnGraphBuilder = node->net->builder;
+        ml::GemmOptions gemmOptions = {};
+        if (bias)
+        {
+            std::vector<int32_t> biasDims = {(int32_t)blobs[1].size[1]};
+            ml::Operand bias = webnn::BuildConstant(webnnGraphBuilder, biasDims, blobs[1].data, blobs[1].total()*blobs[1].elemSize(), ml::OperandType::Float32);
+            gemmOptions.c = bias;
+        }
+        ml::Operand result = nullptr;
+        if (nodes.size() == 2)
+        {
+            auto& inp2 = nodes[1].dynamicCast<WebnnBackendNode>()->operand;
+            result = webnnGraphBuilder.Gemm(webnnInpOperand, inp2, &gemmOptions);
+        }
+        else
+        {
+            std::vector<int32_t> input_shape(2, -1);
+            input_shape[1] = blobs[0].size[1];
+            ml::Operand webnnInpOperand_reshaped = webnnGraphBuilder.Reshape(webnnInpOperand, input_shape.data(), input_shape.size());
+            std::vector<int32_t> weight_shape = {(int32_t)blobs[0].size[0], (int32_t)blobs[0].size[1]};
+            // std::cout<<"weight size: "<<weight_shape[1]<<" "<<weight_shape[0]<<std::endl;
+            ml::Operand inp2 = webnn::BuildConstant(webnnGraphBuilder, weight_shape, blobs[0].data, blobs[0].total()*blobs[0].elemSize(), ml::OperandType::Float32);
+            gemmOptions.bTranspose = true;
+            result = webnnGraphBuilder.Gemm(webnnInpOperand_reshaped, inp2, &gemmOptions);
+        }
+        return Ptr<BackendNode>(new WebnnBackendNode(result));
+    }
+#endif // HAVE_WEBNN
 
     virtual int64 getFLOPS(const std::vector<MatShape> &inputs,
                            const std::vector<MatShape> &outputs) const CV_OVERRIDE

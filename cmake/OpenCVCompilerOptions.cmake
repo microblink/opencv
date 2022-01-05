@@ -204,9 +204,17 @@ if(CV_GCC OR CV_CLANG)
 
   # Other optimizations
   if(ENABLE_OMIT_FRAME_POINTER)
-    add_extra_compiler_option(-fomit-frame-pointer)
+    if(MSVC)
+      add_extra_compiler_option(/clang:-fomit-frame-pointer)
+    else()
+      add_extra_compiler_option(-fomit-frame-pointer)
+    endif()
   elseif(DEFINED ENABLE_OMIT_FRAME_POINTER)
-    add_extra_compiler_option(-fno-omit-frame-pointer)
+    if(MSVC)
+      add_extra_compiler_option(/clang:-fno-omit-frame-pointer)
+    else()
+      add_extra_compiler_option(-fno-omit-frame-pointer)
+    endif()
   endif()
 
   # Profiling?

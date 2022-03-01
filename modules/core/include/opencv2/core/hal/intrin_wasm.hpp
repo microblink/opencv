@@ -10,6 +10,11 @@
 #include <algorithm>
 #include "opencv2/core/saturate.hpp"
 
+#if defined( __EMSCRIPTEN__ ) && !defined( __EMSCRIPTEN_major__ )
+// as of emscripten 3.1.4, this include is needed to provide __EMSCRIPTEN_major__ and similar macros
+#include <emscripten/version.h>
+#endif
+
 #define CV_SIMD128 1
 #define CV_SIMD128_64F 0 // Now all implementation of f64 use fallback, so disable it.
 #define CV_SIMD128_FP16 0

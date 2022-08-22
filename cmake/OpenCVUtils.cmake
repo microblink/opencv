@@ -1631,6 +1631,7 @@ function(ocv_add_external_target name inc link def)
   endif()
 endfunction()
 
+
 # Returns the first non-interface target
 function(ocv_get_imported_target imported interface)
   set(__result "${interface}")

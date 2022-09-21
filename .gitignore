@@ -25,3 +25,7 @@ build
 node_modules
 CMakeSettings.json
 xcuserdata/
+
+# Protobuf-generated files
+*.pb.h
+*.pb.cc

@@ -25,50 +25,53 @@ function(get_protobuf_version version include)
 endfunction()
 
 if(BUILD_PROTOBUF)
-  ocv_assert(NOT PROTOBUF_UPDATE_FILES)
-  add_subdirectory("${OpenCV_SOURCE_DIR}/3rdparty/protobuf")
+  #ocv_assert(NOT PROTOBUF_UPDATE_FILES)
+  #add_subdirectory("${OpenCV_SOURCE_DIR}/3rdparty/protobuf")
   set(Protobuf_LIBRARIES "libprotobuf")
   set(HAVE_PROTOBUF TRUE)
 else()
-  unset(Protobuf_VERSION CACHE)
-  find_package(Protobuf QUIET)
+  if (FALSE)
+      unset(Protobuf_VERSION CACHE)
+      find_package(Protobuf QUIET)
 
-  # Backwards compatibility
-  # Define camel case versions of input variables
-  foreach(UPPER
-      PROTOBUF_FOUND
-      PROTOBUF_LIBRARY
-      PROTOBUF_INCLUDE_DIR
-      PROTOBUF_VERSION
-      )
-      if (DEFINED ${UPPER})
-          string(REPLACE "PROTOBUF_" "Protobuf_" Camel ${UPPER})
-          if (NOT DEFINED ${Camel})
-              set(${Camel} ${${UPPER}})
+      # Backwards compatibility
+      # Define camel case versions of input variables
+      foreach(UPPER
+          PROTOBUF_FOUND
+          PROTOBUF_LIBRARY
+          PROTOBUF_INCLUDE_DIR
+          PROTOBUF_VERSION
+          )
+          if (DEFINED ${UPPER})
+              string(REPLACE "PROTOBUF_" "Protobuf_" Camel ${UPPER})
+              if (NOT DEFINED ${Camel})
+                  set(${Camel} ${${UPPER}})
+              endif()
           endif()
-      endif()
-  endforeach()
-  # end of compatibility block
+      endforeach()
+      # end of compatibility block
 
-  if(Protobuf_FOUND)
-    if(TARGET protobuf::libprotobuf)
-      set(Protobuf_LIBRARIES "protobuf::libprotobuf")
-    else()
-      add_library(libprotobuf UNKNOWN IMPORTED)
-      set_target_properties(libprotobuf PROPERTIES
-        IMPORTED_LOCATION "${Protobuf_LIBRARY}"
-        INTERFACE_INCLUDE_DIRECTORIES "${Protobuf_INCLUDE_DIR}"
-        INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${Protobuf_INCLUDE_DIR}"
-      )
-      get_protobuf_version(Protobuf_VERSION "${Protobuf_INCLUDE_DIR}")
-      set(Protobuf_LIBRARIES "libprotobuf")
-    endif()
-    set(HAVE_PROTOBUF TRUE)
-  endif()
+      if(Protobuf_FOUND)
+        if(TARGET protobuf::libprotobuf)
+          set(Protobuf_LIBRARIES "protobuf::libprotobuf")
+        else()
+          add_library(libprotobuf UNKNOWN IMPORTED)
+          set_target_properties(libprotobuf PROPERTIES
+            IMPORTED_LOCATION "${Protobuf_LIBRARY}"
+            INTERFACE_INCLUDE_DIRECTORIES "${Protobuf_INCLUDE_DIR}"
+            INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${Protobuf_INCLUDE_DIR}"
+          )
+          get_protobuf_version(Protobuf_VERSION "${Protobuf_INCLUDE_DIR}")
+          set(Protobuf_LIBRARIES "libprotobuf")
+        endif()
+      endif()
+   endif()
+   set(Protobuf_LIBRARIES "libprotobuf")
+   set(HAVE_PROTOBUF TRUE)
 endif()
 
 if(HAVE_PROTOBUF AND PROTOBUF_UPDATE_FILES AND NOT COMMAND PROTOBUF_GENERATE_CPP)
-  message(FATAL_ERROR "Can't configure protobuf dependency (BUILD_PROTOBUF=${BUILD_PROTOBUF} PROTOBUF_UPDATE_FILES=${PROTOBUF_UPDATE_FILES})")
+    #message(FATAL_ERROR "Can't configure protobuf dependency (BUILD_PROTOBUF=${BUILD_PROTOBUF} PROTOBUF_UPDATE_FILES=${PROTOBUF_UPDATE_FILES})")
 endif()
 
 if(HAVE_PROTOBUF)

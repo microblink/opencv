@@ -10,4 +10,4 @@ if(WITH_ITT)
   endif()
 endif()
 
-set(OPENCV_TRACE 1)
+set(OPENCV_TRACE 0)

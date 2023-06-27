@@ -997,10 +997,7 @@ int64 getTimestampNS()
 
 const String& getBuildInformation()
 {
-    static String build_info =
-#include "version_string.inc"
-    ;
-    return build_info;
+    return "";
 }
 
 String getVersionString() { return String(CV_VERSION); }

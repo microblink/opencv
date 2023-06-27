@@ -95,14 +95,14 @@ CV_EXPORTS void CV_NORETURN check_failed_MatChannels(const int v, const CheckCon
 #define CV__CHECK(id, op, type, v1, v2, v1_str, v2_str, msg_str) do { \
     if(CV__TEST_##op((v1), (v2))) ; else { \
         CV__DEFINE_CHECK_CONTEXT(id, msg_str, cv::detail::TEST_ ## op, v1_str, v2_str); \
-        cv::detail::check_failed_ ## type((v1), (v2), CV__CHECK_LOCATION_VARNAME(id)); \
+        cv::detail::check_failed_ ## type((v1), (v2), {}); \
     } \
 } while (0)
 
 #define CV__CHECK_CUSTOM_TEST(id, type, v, test_expr, v_str, test_expr_str, msg_str) do { \
     if(!!(test_expr)) ; else { \
         CV__DEFINE_CHECK_CONTEXT(id, msg_str, cv::detail::TEST_CUSTOM, v_str, test_expr_str); \
-        cv::detail::check_failed_ ## type((v), CV__CHECK_LOCATION_VARNAME(id)); \
+        cv::detail::check_failed_ ## type((v), {}); \
     } \
 } while (0)
 

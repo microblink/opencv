@@ -56,7 +56,7 @@ char* itoa( int _val, char* buffer, int /*radix*/ )
     return ptr;
 }
 
-char* doubleToString( char* buf, double value, bool explicitZero )
+char* doubleToString( char* buf, size_t bufSize, double value, bool explicitZero )
 {
     Cv64suf val;
     unsigned ieee754_hi;
@@ -70,15 +70,15 @@ char* doubleToString( char* buf, double value, bool explicitZero )
         if( ivalue == value )
         {
             if( explicitZero )
-                sprintf( buf, "%d.0", ivalue );
+                snprintf( buf, bufSize, "%d.0", ivalue );
             else
-                sprintf( buf, "%d.", ivalue );
+                snprintf( buf, bufSize, "%d.", ivalue );
         }
         else
         {
             static const char* fmt = "%.16e";
             char* ptr = buf;
-            sprintf( buf, fmt, value );
+            snprintf( buf, bufSize, fmt, value );
             if( *ptr == '+' || *ptr == '-' )
                 ptr++;
             for( ; cv_isdigit(*ptr); ptr++ )
@@ -99,7 +99,7 @@ char* doubleToString( char* buf, double value, bool explicitZero )
     return buf;
 }
 
-char* floatToString( char* buf, float value, bool halfprecision, bool explicitZero )
+char* floatToString( char* buf, size_t bufSize, float value, bool halfprecision, bool explicitZero )
 {
     Cv32suf val;
     unsigned ieee754;
@@ -112,17 +112,17 @@ char* floatToString( char* buf, float value, bool halfprecision, bool explicitZe
         if( ivalue == value )
         {
             if( explicitZero )
-                sprintf( buf, "%d.0", ivalue );
+                snprintf( buf, bufSize, "%d.0", ivalue );
             else
-                sprintf( buf, "%d.", ivalue );
+                snprintf( buf, bufSize, "%d.", ivalue );
         }
         else
         {
             char* ptr = buf;
             if (halfprecision)
-                sprintf(buf, "%.4e", value);
+                snprintf(buf, bufSize, "%.4e", value);
             else
-                sprintf(buf, "%.8e", value);
+                snprintf(buf, bufSize, "%.8e", value);
             if( *ptr == '+' || *ptr == '-' )
                 ptr++;
             for( ; cv_isdigit(*ptr); ptr++ )
@@ -161,12 +161,19 @@ static int symbolToType(char c)
     return static_cast<int>(pos - symbols);
 }
 
-char* encodeFormat(int elem_type, char* dt)
+char* encodeFormat(int elem_type, char* dt, size_t dt_len)
 {
     int cn = (elem_type == CV_SEQ_ELTYPE_PTR/*CV_USRTYPE1*/) ? 1 : CV_MAT_CN(elem_type);
     char symbol = (elem_type == CV_SEQ_ELTYPE_PTR/*CV_USRTYPE1*/) ? 'r' : typeSymbol(CV_MAT_DEPTH(elem_type));
-    sprintf(dt, "%d%c", cn, symbol);
+    snprintf(dt, dt_len, "%d%c", cn, symbol);
     return dt + (cn == 1 ? 1 : 0);
+}
+
+// Deprecated due to size of dt buffer being unknowable.
+char* encodeFormat(int elem_type, char* dt)
+{
+    constexpr size_t max = 20+1+1; // UINT64_MAX + one char + nul termination.
+    return encodeFormat(elem_type, dt, max);
 }
 
 int decodeFormat( const char* dt, int* fmt_pairs, int max_len )
@@ -288,16 +295,20 @@ int decodeSimpleFormat( const char* dt )
 
 }
 
-#if defined __i386__ || defined(_M_IX86) || defined __x86_64__ || defined(_M_X64)
-#define CV_UNALIGNED_LITTLE_ENDIAN_MEM_ACCESS 1
+#if defined __i386__ || defined(_M_IX86) || defined __x86_64__ || defined(_M_X64) || \
+    (defined (__LITTLE_ENDIAN__) && __LITTLE_ENDIAN__)
+#define CV_LITTLE_ENDIAN_MEM_ACCESS 1
 #else
-#define CV_UNALIGNED_LITTLE_ENDIAN_MEM_ACCESS 0
+#define CV_LITTLE_ENDIAN_MEM_ACCESS 0
 #endif
 
 static inline int readInt(const uchar* p)
 {
-#if CV_UNALIGNED_LITTLE_ENDIAN_MEM_ACCESS
-    return *(const int*)p;
+    // On little endian CPUs, both branches produce the same result. On big endian, only the else branch does.
+#if CV_LITTLE_ENDIAN_MEM_ACCESS
+    int val;
+    memcpy(&val, p, sizeof(val));
+    return val;
 #else
     int val = (int)(p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24));
     return val;
@@ -306,8 +317,11 @@ static inline int readInt(const uchar* p)
 
 static inline double readReal(const uchar* p)
 {
-#if CV_UNALIGNED_LITTLE_ENDIAN_MEM_ACCESS
-    return *(const double*)p;
+    // On little endian CPUs, both branches produce the same result. On big endian, only the else branch does.
+#if CV_LITTLE_ENDIAN_MEM_ACCESS
+    double val;
+    memcpy(&val, p, sizeof(val));
+    return val;
 #else
     unsigned val0 = (unsigned)(p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24));
     unsigned val1 = (unsigned)(p[4] | (p[5] << 8) | (p[6] << 16) | (p[7] << 24));
@@ -319,9 +333,9 @@ static inline double readReal(const uchar* p)
 
 static inline void writeInt(uchar* p, int ival)
 {
-#if CV_UNALIGNED_LITTLE_ENDIAN_MEM_ACCESS
-    int* ip = (int*)p;
-    *ip = ival;
+    // On little endian CPUs, both branches produce the same result. On big endian, only the else branch does.
+#if CV_LITTLE_ENDIAN_MEM_ACCESS
+    memcpy(p, &ival, sizeof(ival));
 #else
     p[0] = (uchar)ival;
     p[1] = (uchar)(ival >> 8);
@@ -332,9 +346,9 @@ static inline void writeInt(uchar* p, int ival)
 
 static inline void writeReal(uchar* p, double fval)
 {
-#if CV_UNALIGNED_LITTLE_ENDIAN_MEM_ACCESS
-    double* fp = (double*)p;
-    *fp = fval;
+    // On little endian CPUs, both branches produce the same result. On big endian, only the else branch does.
+#if CV_LITTLE_ENDIAN_MEM_ACCESS
+    memcpy(p, &fval, sizeof(fval));
 #else
     Cv64suf v;
     v.f = fval;
@@ -585,7 +599,7 @@ bool FileStorage::Impl::open(const char *filename_or_buf, int _flags, const char
 
                     CV_Assert(strlen(encoding) < 1000);
                     char buf[1100];
-                    sprintf(buf, "<?xml version=\"1.0\" encoding=\"%s\"?>\n", encoding);
+                    snprintf(buf, sizeof(buf), "<?xml version=\"1.0\" encoding=\"%s\"?>\n", encoding);
                     puts(buf);
                 } else
                     puts("<?xml version=\"1.0\"?>\n");
@@ -1111,15 +1125,15 @@ void FileStorage::Impl::writeRawData(const std::string &dt, const void *_data, s
                         data += sizeof(int);
                         break;
                     case CV_32F:
-                        ptr = fs::floatToString(buf, *(float *) data, false, explicitZero);
+                        ptr = fs::floatToString(buf, sizeof(buf), *(float *) data, false, explicitZero);
                         data += sizeof(float);
                         break;
                     case CV_64F:
-                        ptr = fs::doubleToString(buf, *(double *) data, explicitZero);
+                        ptr = fs::doubleToString(buf, sizeof(buf), *(double *) data, explicitZero);
                         data += sizeof(double);
                         break;
                     case CV_16F: /* reference */
-                        ptr = fs::floatToString(buf, (float) *(float16_t *) data, true, explicitZero);
+                        ptr = fs::floatToString(buf, sizeof(buf), (float) *(float16_t *) data, true, explicitZero);
                         data += sizeof(float16_t);
                         break;
                     default:

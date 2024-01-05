@@ -130,6 +130,8 @@
     #include <ppltasks.h>
 #elif defined HAVE_CONCURRENCY
     #include <ppl.h>
+#elif defined HAVE_PTHREADS_PF
+    #include <pthread.h>
 #endif
 
 #if defined HAVE_SWEATER
@@ -285,7 +287,9 @@ namespace {
         void recordException(const cv::String& msg)
 #endif
         {
+#ifndef CV_THREAD_SANITIZER
             if (!hasException)
+#endif
             {
                 cv::AutoLock lock(cv::getInitializationMutex());
                 if (!hasException)
@@ -810,7 +814,7 @@ int getThreadNum()
         return 0;
     #endif
 #elif defined HAVE_HPX
-        return (int)(hpx::get_num_worker_threads());
+    return (int)(hpx::get_num_worker_threads());
 #elif defined HAVE_OPENMP
     return omp_get_thread_num();
 #elif defined HAVE_GCD

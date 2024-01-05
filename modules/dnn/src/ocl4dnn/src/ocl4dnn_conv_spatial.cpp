@@ -181,8 +181,11 @@ OCL4DNNConvSpatial<Dtype>::OCL4DNNConvSpatial(OCL4DNNConvConfig config)
     // assumption: spatial dimension is 2.
     kernel_h_ = config.kernel.height;
     kernel_w_ = config.kernel.width;
-    pad_h_ = config.pad.height;
-    pad_w_ = config.pad.width;
+    // pads: [pad_top, pad_bottom, pad_left, pad_right]
+    pad_h_ = config.pads[0]; // pad_top
+    pad_bottom_ = config.pads[1];
+    pad_w_ = config.pads[2]; // pad_left
+    pad_right_ = config.pads[3];
     stride_h_ = config.stride.height;
     stride_w_ = config.stride.width;
     dilation_h_ = config.dilation.height;
@@ -194,12 +197,6 @@ OCL4DNNConvSpatial<Dtype>::OCL4DNNConvSpatial(OCL4DNNConvConfig config)
     output_w_ = config.out_shape[dims - spatial_dims + 1];
     bottom_dim_ = channels_ * width_ * height_;
     top_dim_ = num_output_ * output_w_ * output_h_;
-    int Ph = (output_h_ - 1) * stride_h_ + (dilation_h_ * (kernel_h_ - 1) + 1) - height_;
-    int Pw = (output_w_ - 1) * stride_w_ + (dilation_w_ * (kernel_w_ - 1) + 1) - width_;
-    Ph = (Ph > 0) ? Ph : 0;
-    Pw = (Pw > 0) ? Pw : 0;
-    pad_right_  = (Pw + 1) / 2;
-    pad_bottom_ = (Ph + 1) / 2;
 
     cache_path_ = utils::getConfigurationParameterString("OPENCV_OCL4DNN_CONFIG_PATH", "");
     dwconv_ = (num_output_ == channels_ && channels_ == group_);
@@ -1463,6 +1460,16 @@ void OCL4DNNConvSpatial<float>::generate_gemmlike_tuneritems(std::vector< cv::Pt
             return;
         if ((blockM == 2) || M_ % 32 != 0)
             return;
+    }
+
+    // issue #24734
+    // OpenCL 1.2: https://registry.khronos.org/OpenCL/specs/opencl-1.2.pdf
+    // section 6.1.2 page 200: "Supported values of n are 2, 3, 4, 8, and 16 for all vector data types."
+    // besides of builtin types, kernel code defines extra types up to float15 (see float15 definition)
+    if (kernel_w_ > 16)
+    {
+        CV_LOG_DEBUG(NULL, "DNN/OCL: skip KERNEL_TYPE_GEMM_LIKE with blockMKN=[" << blockM << ", " << blockK << ", " << blockN << "] kernel=" << kernel_w_ << " x " << kernel_h_);
+        return;
     }
 
     tunerItems.push_back(makePtr<tunerParam>(KERNEL_TYPE_GEMM_LIKE, blockM, blockK, blockN));

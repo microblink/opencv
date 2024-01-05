@@ -105,13 +105,27 @@ elseif(CV_ICC)
       add_extra_compiler_option("-fp-model precise")
     endif()
   endif()
+elseif(CV_ICX)
+  # ICX uses -ffast-math by default.
+  # use own flags, if no one of the flags provided by user: -fp-model, -ffast-math -fno-fast-math
+  if(NOT " ${CMAKE_CXX_FLAGS} ${OPENCV_EXTRA_FLAGS} ${OPENCV_EXTRA_CXX_FLAGS}" MATCHES " /fp:"
+      AND NOT " ${CMAKE_CXX_FLAGS} ${OPENCV_EXTRA_FLAGS} ${OPENCV_EXTRA_CXX_FLAGS}" MATCHES " -fp-model"
+      AND NOT " ${CMAKE_CXX_FLAGS} ${OPENCV_EXTRA_FLAGS} ${OPENCV_EXTRA_CXX_FLAGS}" MATCHES " -ffast-math"
+      AND NOT " ${CMAKE_CXX_FLAGS} ${OPENCV_EXTRA_FLAGS} ${OPENCV_EXTRA_CXX_FLAGS}" MATCHES " -fno-fast-math"
+  )
+    if(NOT ENABLE_FAST_MATH)
+      add_extra_compiler_option(-fno-fast-math)
+      add_extra_compiler_option(-fp-model=precise)
+    endif()
+  endif()
 elseif(CV_GCC OR CV_CLANG)
   if(ENABLE_FAST_MATH)
     add_extra_compiler_option(-ffast-math)
+    add_extra_compiler_option(-fno-finite-math-only)
   endif()
 endif()
 
-if(CV_GCC OR CV_CLANG)
+if(CV_GCC OR CV_CLANG OR CV_ICX)
   # High level of warnings.
   add_extra_compiler_option(-W)
   if (NOT MSVC)
@@ -136,7 +150,7 @@ if(CV_GCC OR CV_CLANG)
   endif()
   add_extra_compiler_option(-Wsign-promo)
   add_extra_compiler_option(-Wuninitialized)
-  if(CV_GCC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 6.0) AND (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.0))
+  if(CV_GCC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 6.0) AND (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.0 OR ARM))
     add_extra_compiler_option(-Wno-psabi)
   endif()
   if(HAVE_CXX11)
@@ -268,7 +282,11 @@ if(CV_GCC OR CV_CLANG)
   endif()
 
   if(ENABLE_LTO)
-    add_extra_compiler_option(-flto)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 12)
+      add_extra_compiler_option(-flto=auto)
+    else()
+      add_extra_compiler_option(-flto)
+    endif()
   endif()
   if(ENABLE_THIN_LTO)
     add_extra_compiler_option(-flto=thin)
@@ -339,7 +357,7 @@ if(COMMAND ocv_compiler_optimization_options_finalize)
 endif()
 
 # set default visibility to hidden
-if((CV_GCC OR CV_CLANG)
+if((CV_GCC OR CV_CLANG OR CV_ICX)
     AND NOT MSVC
     AND NOT OPENCV_SKIP_VISIBILITY_HIDDEN
     AND NOT " ${CMAKE_CXX_FLAGS} ${OPENCV_EXTRA_FLAGS} ${OPENCV_EXTRA_CXX_FLAGS}" MATCHES " -fvisibility")
@@ -445,6 +463,7 @@ if(MSVC)
     ocv_warnings_disable(CMAKE_CXX_FLAGS /wd4275) # non dll-interface class 'std::exception' used as base for dll-interface class 'cv::Exception'
     ocv_warnings_disable(CMAKE_CXX_FLAGS /wd4512) # Assignment operator could not be generated
     ocv_warnings_disable(CMAKE_CXX_FLAGS /wd4589) # Constructor of abstract class 'cv::ORB' ignores initializer for virtual base class 'cv::Algorithm'
+    ocv_warnings_disable(CMAKE_CXX_FLAGS /wd4819) # Symbols like delta or epsilon cannot be represented
   endif()
 
   if(CV_ICC AND NOT ENABLE_NOISY_WARNINGS)

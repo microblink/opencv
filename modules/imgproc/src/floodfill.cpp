@@ -283,7 +283,7 @@ floodFillGrad_CnIR( Mat& image, Mat& msk,
                    Diff diff, ConnectedComp* region, int flags,
                    std::vector<FFillSegment>* buffer )
 {
-    int step = (int)image.step, maskStep = (int)msk.step;
+    size_t step = image.step, maskStep = msk.step;
     uchar* pImage = image.ptr();
     _Tp* img = (_Tp*)(pImage + step*seed.y);
     uchar* pMask = msk.ptr() + maskStep + sizeof(_MTp);
@@ -560,8 +560,15 @@ int cv::floodFill( InputOutputArray _image, InputOutputArray _mask,
     if( depth == CV_8U )
         for( i = 0; i < cn; i++ )
         {
+#if defined(__GNUC__) && (__GNUC__ == 12)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
             ld_buf.b[i] = saturate_cast<uchar>(cvFloor(loDiff[i]));
             ud_buf.b[i] = saturate_cast<uchar>(cvFloor(upDiff[i]));
+#if defined(__GNUC__) && (__GNUC__ == 12)
+#pragma GCC diagnostic pop
+#endif
         }
     else if( depth == CV_32S )
         for( i = 0; i < cn; i++ )

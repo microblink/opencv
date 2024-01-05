@@ -46,10 +46,18 @@ private:
 };
 
 #ifndef CV_THROW_IF_TYPE_MISMATCH
+// MB patch begin
+#ifndef OCV_EXCEPTIONS_DISABLED
 #define CV_THROW_IF_TYPE_MISMATCH(src_type_info, dst_type_info) \
     if ((src_type_info) != (dst_type_info)) \
         throw cvflann::anyimpl::bad_any_cast((src_type_info).name(), \
                                              (dst_type_info).name())
+#else
+#define CV_THROW_IF_TYPE_MISMATCH(src_type_info, dst_type_info) \
+    if ((src_type_info) != (dst_type_info)) \
+        std::terminate()
+#endif
+// MB patch end
 #endif
 
 struct empty_any
@@ -298,7 +306,10 @@ public:
     template<typename T>
     T& cast()
     {
+        // MB patch
+#ifdef __cpp_rtti
         CV_THROW_IF_TYPE_MISMATCH(policy->type(), typeid(T));
+#endif
         T* r = reinterpret_cast<T*>(policy->get_value(&object));
         return *r;
     }
@@ -307,7 +318,10 @@ public:
     template<typename T>
     const T& cast() const
     {
+        // MB patch
+#ifdef __cpp_rtti
         CV_THROW_IF_TYPE_MISMATCH(policy->type(), typeid(T));
+#endif
         const T* r = reinterpret_cast<const T*>(policy->get_value(&object));
         return *r;
     }

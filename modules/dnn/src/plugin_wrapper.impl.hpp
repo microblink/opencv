@@ -158,15 +158,19 @@ protected:
     void initBackend()
     {
         AutoLock lock(getInitializationMutex());
+#ifndef OCV_EXCEPTIONS_DISABLED
         try
         {
+#endif
             if (!initialized)
                 loadPlugin();
+#ifndef OCV_EXCEPTIONS_DISABLED
         }
         catch (...)
         {
             CV_LOG_INFO(NULL, "DNN: exception during plugin loading: " << baseName_ << ". SKIP");
         }
+#endif
         initialized = true;
     }
     void loadPlugin();
@@ -246,8 +250,10 @@ void PluginDNNBackendFactory::loadPlugin()
         {
             continue;
         }
+#ifndef OCV_EXCEPTIONS_DISABLED
         try
         {
+#endif
             auto pluginBackend = std::make_shared<PluginDNNBackend>(lib);
             if (!pluginBackend)
             {
@@ -262,11 +268,13 @@ void PluginDNNBackendFactory::loadPlugin()
             lib->disableAutomaticLibraryUnloading();
             backend = pluginBackend;
             return;
+#ifndef OCV_EXCEPTIONS_DISABLED
         }
         catch (...)
         {
             CV_LOG_WARNING(NULL, "DNN: exception during plugin initialization: " << toPrintablePath(plugin) << ". SKIP");
         }
+#endif
     }
 }
 

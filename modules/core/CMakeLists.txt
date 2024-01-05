@@ -242,3 +242,7 @@ endif()
 if(NOT OPENCV_DATA_CONFIG_STR STREQUAL "${__content}")
   file(WRITE "${OPENCV_DATA_CONFIG_FILE}" "${OPENCV_DATA_CONFIG_STR}")
 endif()
+
+# MB patch
+# calib3d requires RTTI for it's optimization algorithms, and this depends on typeinfo for cv::Algorithm
+set_source_files_properties( src/algorithm.cpp PROPERTIES COMPILE_OPTIONS ${TNUN_compiler_rtti_on} )

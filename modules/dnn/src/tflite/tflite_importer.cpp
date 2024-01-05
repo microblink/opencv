@@ -219,8 +219,10 @@ void TFLiteImporter::populateNet()
         CV_LOG_DEBUG(NULL, "DNN/TFLite: processing operator (" << op_idx << "/" << all_operators_size << ") with " << op_inputs->size() << " inputs: "
                            << cv::format("[%s]:(%s)", type.c_str(), layerParams.name.c_str()));
 
+#ifndef OCV_EXCEPTIONS_DISABLED
         try
         {
+#endif
             if (type == "DEQUANTIZE") {
                 // Convert from FP16 to FP32
                 Mat data = allTensors[op_inputs->Get(0)];
@@ -238,6 +240,7 @@ void TFLiteImporter::populateNet()
                 CV_Error(Error::StsNotImplemented, "Unsupported operator type " + type);
 
             CALL_MEMBER_FN(*this, iter->second)(*op, type, layerParams);
+#ifndef OCV_EXCEPTIONS_DISABLED
         }
         catch (const cv::Exception& e)
         {
@@ -250,6 +253,7 @@ void TFLiteImporter::populateNet()
             }
             throw;
         }
+#endif
     }
 }
 

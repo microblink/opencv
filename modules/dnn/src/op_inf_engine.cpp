@@ -378,15 +378,19 @@ namespace openvino {
 bool checkTarget(Target target)
 {
 #if defined(ENABLE_PLUGINS)
+#ifndef OCV_EXCEPTIONS_DISABLED
     try
     {
+#endif
         auto& networkBackend = dnn_backend::createPluginDNNNetworkBackend("openvino");
         return networkBackend.checkTarget(target);
+#ifndef OCV_EXCEPTIONS_DISABLED
     }
     catch (const std::exception& e)
     {
         CV_LOG_INFO(NULL, "DNN/OpenVINO: checkTarget failed: " << e.what())
     }
+#endif
 #endif
     return false;
 }
@@ -397,32 +401,40 @@ bool checkTarget(Target target)
 cv::String getInferenceEngineBackendType()
 {
 #if defined(ENABLE_PLUGINS)
+#ifndef OCV_EXCEPTIONS_DISABLED
     try
     {
+#endif
         auto& networkBackend = dnn_backend::createPluginDNNNetworkBackend("openvino");
         CV_UNUSED(networkBackend);
         return CV_DNN_BACKEND_INFERENCE_ENGINE_NGRAPH;
+#ifndef OCV_EXCEPTIONS_DISABLED
     }
     catch (const std::exception& e)
     {
         CV_LOG_INFO(NULL, "DNN/OpenVINO: plugin is not available: " << e.what())
     }
 #endif
+#endif
     CV_Error(Error::StsNotImplemented, "This OpenCV build doesn't include InferenceEngine support");
 }
 cv::String setInferenceEngineBackendType(const cv::String& newBackendType)
 {
 #if defined(ENABLE_PLUGINS)
+#ifndef OCV_EXCEPTIONS_DISABLED
     try
     {
+#endif
         auto& networkBackend = dnn_backend::createPluginDNNNetworkBackend("openvino");
         CV_UNUSED(networkBackend);
         CV_Assert(newBackendType == CV_DNN_BACKEND_INFERENCE_ENGINE_NGRAPH);
+#ifndef OCV_EXCEPTIONS_DISABLED
     }
     catch (const std::exception& e)
     {
         CV_LOG_INFO(NULL, "DNN/OpenVINO: plugin is not available: " << e.what())
     }
+#endif
 #endif
     CV_UNUSED(newBackendType);
     CV_Error(Error::StsNotImplemented, "This OpenCV build doesn't include InferenceEngine support");
@@ -430,17 +442,21 @@ cv::String setInferenceEngineBackendType(const cv::String& newBackendType)
 cv::String getInferenceEngineVPUType()
 {
 #if defined(ENABLE_PLUGINS)
+#ifndef OCV_EXCEPTIONS_DISABLED
     try
     {
+#endif
         auto& networkBackend = dnn_backend::createPluginDNNNetworkBackend("openvino");
         if (networkBackend.checkTarget(DNN_TARGET_MYRIAD))
             return CV_DNN_INFERENCE_ENGINE_VPU_TYPE_MYRIAD_X;  // 2021.4 supports NCS2 only
         CV_Error(Error::StsError, "DNN/OpenVINO: DNN_TARGET_MYRIAD is not available");
+#ifndef OCV_EXCEPTIONS_DISABLED
     }
     catch (const std::exception& e)
     {
         CV_LOG_INFO(NULL, "DNN/OpenVINO: plugin is not available: " << e.what())
     }
+#endif
 #endif
     CV_Error(Error::StsNotImplemented, "This OpenCV build doesn't include InferenceEngine support");
 }
@@ -448,8 +464,10 @@ cv::String getInferenceEngineVPUType()
 cv::String getInferenceEngineCPUType()
 {
 #if defined(ENABLE_PLUGINS)
+#ifndef OCV_EXCEPTIONS_DISABLED
     try
     {
+#endif
         auto& networkBackend = dnn_backend::createPluginDNNNetworkBackend("openvino");
         CV_UNUSED(networkBackend);
 #if defined(__arm__) || defined(__aarch64__) || defined(_M_ARM64)
@@ -457,11 +475,13 @@ cv::String getInferenceEngineCPUType()
 #else
         return CV_DNN_INFERENCE_ENGINE_CPU_TYPE_X86;
 #endif
+#ifndef OCV_EXCEPTIONS_DISABLED
     }
     catch (const std::exception& e)
     {
         CV_LOG_INFO(NULL, "DNN/OpenVINO: plugin is not available: " << e.what())
     }
+#endif
 #endif
     CV_Error(Error::StsNotImplemented, "This OpenCV build doesn't include InferenceEngine support");
 }

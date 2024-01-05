@@ -10,3 +10,8 @@ ocv_define_module(calib3d opencv_imgproc opencv_features2d opencv_flann ${debug_
     WRAP java objc python js
 )
 ocv_target_link_libraries(${the_module} ${LAPACK_LIBRARIES})
+
+# MB patch - RTTI is needed for non-minimal polisher
+# enable it for the entire module, as RTTI is needed on all classes
+# dynamically used by this optimized
+target_compile_options( opencv_calib3d PRIVATE ${TNUN_compiler_rtti_on} )

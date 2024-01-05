@@ -683,13 +683,17 @@ bool imreadmulti(const String& filename, std::vector<Mat>& mats, int start, int 
 static
 size_t imcount_(const String& filename, int flags)
 {
+#ifndef OCV_EXCEPTIONS_DISABLED
     try{
+#endif
         ImageCollection collection(filename, flags);
         return collection.size();
+#ifndef OCV_EXCEPTIONS_DISABLED
     } catch(cv::Exception const& e) {
         // Reading header or finding decoder for the filename is failed
         CV_LOG_ERROR(NULL, "imcount_('" << filename << "'): can't read header or can't find decoder: " << e.what());
     }
+#endif
     return 0;
 }
 
@@ -1019,11 +1023,14 @@ imdecodemulti_(const Mat& buf, int flags, std::vector<Mat>& mats, int start, int
 
     // read the header to make sure it succeeds
     bool success = false;
+#ifndef OCV_EXCEPTIONS_DISABLED
     try
     {
+#endif
         // read the header to make sure it succeeds
         if (decoder->readHeader())
             success = true;
+#ifndef OCV_EXCEPTIONS_DISABLED
     }
     catch (const cv::Exception& e)
     {
@@ -1033,6 +1040,7 @@ imdecodemulti_(const Mat& buf, int flags, std::vector<Mat>& mats, int start, int
     {
         CV_LOG_ERROR(NULL, "imreadmulti_('" << filename << "'): can't read header: unknown exception");
     }
+#endif
 
     int current = start;
     while (success && current > 0)
@@ -1080,10 +1088,13 @@ imdecodemulti_(const Mat& buf, int flags, std::vector<Mat>& mats, int start, int
         // read the image data
         Mat mat(size.height, size.width, type);
         success = false;
+#ifndef OCV_EXCEPTIONS_DISABLED
         try
         {
+#endif
             if (decoder->readData(mat))
                 success = true;
+#ifndef OCV_EXCEPTIONS_DISABLED
         }
         catch (const cv::Exception& e)
         {
@@ -1093,6 +1104,7 @@ imdecodemulti_(const Mat& buf, int flags, std::vector<Mat>& mats, int start, int
         {
             CV_LOG_ERROR(NULL, "imreadmulti_('" << filename << "'): can't read data: unknown exception");
         }
+#endif
         if (!success)
             break;
 
@@ -1348,9 +1360,12 @@ Mat ImageCollection::Impl::readData() {
 
     Mat mat(size.height, size.width, type);
     bool success = false;
+#ifndef OCV_EXCEPTIONS_DISABLED
     try {
+#endif
         if (m_decoder->readData(mat))
             success = true;
+#ifndef OCV_EXCEPTIONS_DISABLED
     }
     catch (const cv::Exception &e) {
         CV_LOG_ERROR(NULL, "ImageCollection class: can't read data: " << e.what());
@@ -1358,6 +1373,7 @@ Mat ImageCollection::Impl::readData() {
     catch (...) {
         CV_LOG_ERROR(NULL, "ImageCollection class:: can't read data: unknown exception");
     }
+#endif
     if (!success)
         return cv::Mat();
 

@@ -358,15 +358,25 @@ BarcodeDetector::~BarcodeDetector() = default;
 
 bool BarcodeDetector::decodeWithType(InputArray img, InputArray points, vector<string> &decoded_info, vector<string> &decoded_type) const
 {
+    // MB patch begin
+#ifdef __cpp_rtti
     Ptr<BarcodeImpl> p_ = dynamic_pointer_cast<BarcodeImpl>(p);
     CV_Assert(p_);
+#else
+    Ptr<BarcodeImpl> p_ = std::static_pointer_cast<BarcodeImpl>(p);
+#endif
     return p_->decodeWithType(img, points, decoded_info, decoded_type);
 }
 
 bool BarcodeDetector::detectAndDecodeWithType(InputArray img, vector<string> &decoded_info, vector<string> &decoded_type, OutputArray points_) const
 {
+    // MB patch
+#ifdef __cpp_rtti
     Ptr<BarcodeImpl> p_ = dynamic_pointer_cast<BarcodeImpl>(p);
     CV_Assert(p_);
+#else
+    Ptr<BarcodeImpl> p_ = std::static_pointer_cast<BarcodeImpl>(p);
+#endif
     return p_->detectAndDecodeWithType(img, decoded_info, decoded_type, points_);
 }
 

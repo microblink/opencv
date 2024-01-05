@@ -976,12 +976,22 @@ QRCodeDetector::QRCodeDetector() {
 }
 
 QRCodeDetector& QRCodeDetector::setEpsX(double epsX) {
+    // MB patch
+#ifdef __cpp_rtti
     std::dynamic_pointer_cast<ImplContour>(p)->epsX = epsX;
+#else
+    std::static_pointer_cast<ImplContour>(p)->epsX = epsX;
+#endif
     return *this;
 }
 
 QRCodeDetector& QRCodeDetector::setEpsY(double epsY) {
+    // MB patch
+#ifdef __cpp_rtti
     std::dynamic_pointer_cast<ImplContour>(p)->epsY = epsY;
+#else
+    std::static_pointer_cast<ImplContour>(p)->epsY = epsY;
+#endif
     return *this;
 }
 
@@ -2943,7 +2953,12 @@ std::string ImplContour::decode(InputArray in, InputArray points, OutputArray st
 
 String QRCodeDetector::decodeCurved(InputArray in, InputArray points, OutputArray straight_qrcode) {
     CV_Assert(p);
+    // MB patch
+#ifdef __cpp_rtti
     return std::dynamic_pointer_cast<ImplContour>(p)->decodeCurved(in, points, straight_qrcode);
+#else
+    return std::static_pointer_cast<ImplContour>(p)->decodeCurved(in, points, straight_qrcode);
+#endif
 }
 
 String ImplContour::decodeCurved(InputArray in, InputArray points, OutputArray straight_qrcode)
@@ -2998,7 +3013,12 @@ std::string ImplContour::detectAndDecode(InputArray in, OutputArray points_, Out
 std::string QRCodeDetector::detectAndDecodeCurved(InputArray in, OutputArray points,
                                                   OutputArray straight_qrcode) {
     CV_Assert(p);
+    // MB patch
+#ifdef __cpp_rtti
     return std::dynamic_pointer_cast<ImplContour>(p)->detectAndDecodeCurved(in, points, straight_qrcode);
+#else
+    return std::static_pointer_cast<ImplContour>(p)->detectAndDecodeCurved(in, points, straight_qrcode);
+#endif
 }
 
 std::string ImplContour::detectAndDecodeCurved(InputArray in, OutputArray points_,
@@ -4122,7 +4142,12 @@ bool ImplContour::detectAndDecodeMulti(
 }
 
 QRCodeDetector& QRCodeDetector::setUseAlignmentMarkers(bool useAlignmentMarkers) {
+    // MB patch
+#ifdef __cpp_rtti
     (std::dynamic_pointer_cast<ImplContour>)(p)->useAlignmentMarkers = useAlignmentMarkers;
+#else
+    (std::static_pointer_cast<ImplContour>)(p)->useAlignmentMarkers = useAlignmentMarkers;
+#endif
     return *this;
 }
 
@@ -4619,24 +4644,49 @@ QRCodeDetectorAruco::QRCodeDetectorAruco() {
 
 QRCodeDetectorAruco::QRCodeDetectorAruco(const QRCodeDetectorAruco::Params& params) {
     p = makePtr<PimplQRAruco>();
+    // MB patch
+#ifdef __cpp_rtti
     std::dynamic_pointer_cast<PimplQRAruco>(p)->qrParams = params;
+#else
+    std::static_pointer_cast<PimplQRAruco>(p)->qrParams = params;
+#endif
 }
 
 const QRCodeDetectorAruco::Params& QRCodeDetectorAruco::getDetectorParameters() const {
+    // MB patch
+#ifdef __cpp_rtti
     return std::dynamic_pointer_cast<PimplQRAruco>(p)->qrParams;
+#else
+    return std::static_pointer_cast<PimplQRAruco>(p)->qrParams;
+#endif
 }
 
 QRCodeDetectorAruco& QRCodeDetectorAruco::setDetectorParameters(const QRCodeDetectorAruco::Params& params) {
+    // MB patch
+#ifdef __cpp_rtti
     std::dynamic_pointer_cast<PimplQRAruco>(p)->qrParams = params;
+#else
+    std::static_pointer_cast<PimplQRAruco>(p)->qrParams = params;
+#endif
     return *this;
 }
 
 aruco::DetectorParameters QRCodeDetectorAruco::getArucoParameters() {
+    // MB patch
+#ifdef __cpp_rtti
     return std::dynamic_pointer_cast<PimplQRAruco>(p)->arucoParams;
+#else
+    return std::static_pointer_cast<PimplQRAruco>(p)->arucoParams;
+#endif
 }
 
 void QRCodeDetectorAruco::setArucoParameters(const aruco::DetectorParameters& params) {
+    // MB patch
+#ifdef __cpp_rtti
     std::dynamic_pointer_cast<PimplQRAruco>(p)->arucoParams = params;
+#else
+    std::static_pointer_cast<PimplQRAruco>(p)->arucoParams = params;
+#endif
 }
 
 }  // namespace

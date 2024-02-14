@@ -468,9 +468,12 @@ CvCaptureCAM_V4L::CvCaptureCAM_V4L() :
 
 CvCaptureCAM_V4L::~CvCaptureCAM_V4L()
 {
+#ifndef OCV_EXCEPTIONS_DISABLED
     try
     {
+#endif
         closeDevice();
+#ifndef OCV_EXCEPTIONS_DISABLED
     }
     catch (...)
     {
@@ -478,6 +481,7 @@ CvCaptureCAM_V4L::~CvCaptureCAM_V4L()
         if (deviceHandle != -1)
             close(deviceHandle);
     }
+#endif
 }
 
 void CvCaptureCAM_V4L::closeDevice()
@@ -2426,12 +2430,22 @@ bool VideoCapture_V4L_waitAny(const std::vector<VideoCapture>& streams, CV_OUT s
     for (size_t i = 0; i < N; ++i)
     {
         IVideoCapture* iCap = internal::VideoCapturePrivateAccessor::getIVideoCapture(streams[i]);
+        // MB patch
+#ifdef __cpp_rtti
         LegacyCapture* legacyCapture = dynamic_cast<LegacyCapture*>(iCap);
+#else
+        LegacyCapture* legacyCapture = static_cast<LegacyCapture*>(iCap);
+#endif
         CV_Assert(legacyCapture);
         CvCapture* cvCap = legacyCapture->getCvCapture();
         CV_Assert(cvCap);
 
+        // MB patch
+#ifdef __cpp_rtti
         CvCaptureCAM_V4L *ptr_CvCaptureCAM_V4L = dynamic_cast<CvCaptureCAM_V4L*>(cvCap);
+#else
+        CvCaptureCAM_V4L *ptr_CvCaptureCAM_V4L = static_cast<CvCaptureCAM_V4L*>(cvCap);
+#endif
         CV_Assert(ptr_CvCaptureCAM_V4L);
         capPtr[i] = ptr_CvCaptureCAM_V4L;
     }

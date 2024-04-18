@@ -16,6 +16,7 @@
 
 #include "defines.h"
 #include <stdexcept>
+#include <exception>
 #include <ostream>
 #include <typeinfo>
 

@@ -72,7 +72,7 @@ static void* OutOfMemoryError(size_t size)
 {
     (void)size; // MB patch
 #ifndef NDEBUG // MB patch
-    CV_Error_(CV_StsNoMem, ("Failed to allocate %llu bytes", (unsigned long long)size));
+    CV_Error_(cv::Error::StsNoMem, ("Failed to allocate %llu bytes", (unsigned long long)size));
 #elif TNUN_MALLOC_OVERCOMMIT != TNUN_OVERCOMMIT_Full // MB patch
 #ifndef OCV_EXCEPTIONS_DISABLED
     throw std::bad_alloc();

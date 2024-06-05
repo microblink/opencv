@@ -164,9 +164,9 @@ bool VideoCapture::open(const String& filename, int apiPreference, const std::ve
                     {
                         throw;
                     }
-                    CV_LOG_ERROR(NULL,
-                                 cv::format("VIDEOIO(%s): raised OpenCV exception:\n\n%s\n",
-                                            info.name, e.what()));
+                    CV_LOG_WARNING(NULL,
+                                   cv::format("VIDEOIO(%s): raised OpenCV exception:\n\n%s\n",
+                                              info.name, e.what()));
                 }
                 catch (const std::exception& e)
                 {
@@ -174,8 +174,8 @@ bool VideoCapture::open(const String& filename, int apiPreference, const std::ve
                     {
                         throw;
                     }
-                    CV_LOG_ERROR(NULL, cv::format("VIDEOIO(%s): raised C++ exception:\n\n%s\n",
-                                                  info.name, e.what()));
+                    CV_LOG_WARNING(NULL, cv::format("VIDEOIO(%s): raised C++ exception:\n\n%s\n",
+                                                    info.name, e.what()));
                 }
                 catch (...)
                 {
@@ -183,9 +183,9 @@ bool VideoCapture::open(const String& filename, int apiPreference, const std::ve
                     {
                         throw;
                     }
-                    CV_LOG_ERROR(NULL,
-                                 cv::format("VIDEOIO(%s): raised unknown C++ exception!\n\n",
-                                            info.name));
+                    CV_LOG_WARNING(NULL,
+                                   cv::format("VIDEOIO(%s): raised unknown C++ exception!\n\n",
+                                              info.name));
                 }
             #endif
             }
@@ -306,9 +306,9 @@ bool VideoCapture::open(int cameraNum, int apiPreference, const std::vector<int>
                     {
                         throw;
                     }
-                    CV_LOG_ERROR(NULL,
-                                 cv::format("VIDEOIO(%s): raised OpenCV exception:\n\n%s\n",
-                                            info.name, e.what()));
+                    CV_LOG_WARNING(NULL,
+                                   cv::format("VIDEOIO(%s): raised OpenCV exception:\n\n%s\n",
+                                              info.name, e.what()));
                 }
                 catch (const std::exception& e)
                 {
@@ -316,8 +316,8 @@ bool VideoCapture::open(int cameraNum, int apiPreference, const std::vector<int>
                     {
                         throw;
                     }
-                    CV_LOG_ERROR(NULL, cv::format("VIDEOIO(%s): raised C++ exception:\n\n%s\n",
-                                                  info.name, e.what()));
+                    CV_LOG_WARNING(NULL, cv::format("VIDEOIO(%s): raised C++ exception:\n\n%s\n",
+                                                    info.name, e.what()));
                 }
                 catch (...)
                 {
@@ -325,9 +325,9 @@ bool VideoCapture::open(int cameraNum, int apiPreference, const std::vector<int>
                     {
                         throw;
                     }
-                    CV_LOG_ERROR(NULL,
-                                 cv::format("VIDEOIO(%s): raised unknown C++ exception!\n\n",
-                                            info.name));
+                    CV_LOG_WARNING(NULL,
+                                   cv::format("VIDEOIO(%s): raised unknown C++ exception!\n\n",
+                                              info.name));
                 }
             #endif
             }
@@ -651,20 +651,20 @@ bool VideoWriter::open(const String& filename, int apiPreference, int fourcc, do
             #ifndef OCV_EXCEPTIONS_DISABLED
                 catch (const cv::Exception& e)
                 {
-                    CV_LOG_ERROR(NULL,
-                                 cv::format("VIDEOIO(%s): raised OpenCV exception:\n\n%s\n",
-                                            info.name, e.what()));
+                    CV_LOG_WARNING(NULL,
+                                   cv::format("VIDEOIO(%s): raised OpenCV exception:\n\n%s\n",
+                                              info.name, e.what()));
                 }
                 catch (const std::exception& e)
                 {
-                    CV_LOG_ERROR(NULL, cv::format("VIDEOIO(%s): raised C++ exception:\n\n%s\n",
-                                                  info.name, e.what()));
+                    CV_LOG_WARNING(NULL, cv::format("VIDEOIO(%s): raised C++ exception:\n\n%s\n",
+                                                    info.name, e.what()));
                 }
                 catch (...)
                 {
-                    CV_LOG_ERROR(NULL,
-                                 cv::format("VIDEOIO(%s): raised unknown C++ exception!\n\n",
-                                            info.name));
+                    CV_LOG_WARNING(NULL,
+                                   cv::format("VIDEOIO(%s): raised unknown C++ exception!\n\n",
+                                              info.name));
                 }
             #endif
             }

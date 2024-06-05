@@ -34,7 +34,6 @@ else()
             endif()
         endif()
     endif() # MB patch end
-endif()
 
   if(NOT ZLIB_FOUND)
     ocv_clear_vars(ZLIB_LIBRARY ZLIB_LIBRARIES ZLIB_INCLUDE_DIR)

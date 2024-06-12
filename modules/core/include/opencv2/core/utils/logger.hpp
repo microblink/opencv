@@ -126,12 +126,12 @@ struct LogTagAuto
         break; \
     }
 
-#define CV_LOG_FATAL(tag, ...)   CV_LOG_WITH_TAG(tag, cv::utils::logging::LOG_LEVEL_FATAL, , , __VA_ARGS__)
-#define CV_LOG_ERROR(tag, ...)   CV_LOG_WITH_TAG(tag, cv::utils::logging::LOG_LEVEL_ERROR, , , __VA_ARGS__)
-#define CV_LOG_WARNING(tag, ...) CV_LOG_WITH_TAG(tag, cv::utils::logging::LOG_LEVEL_WARNING, , , __VA_ARGS__)
-#define CV_LOG_INFO(tag, ...) CV_LOG_WITH_TAG(tag, cv::utils::logging::LOG_LEVEL_INFO, , , __VA_ARGS__)
-#define CV_LOG_DEBUG(tag, ...) CV_LOG_WITH_TAG(tag, cv::utils::logging::LOG_LEVEL_DEBUG, , , __VA_ARGS__)
-#define CV_LOG_VERBOSE(tag, v, ...) CV_LOG_WITH_TAG(tag, (cv::utils::logging::LOG_LEVEL_VERBOSE + (int)(v)), , , __VA_ARGS__)
+#define CV_LOG_FATAL(tag, ...)   CV_LOG_WITH_TAG(tag, cv::utils::logging::LL_FATAL, , , __VA_ARGS__)
+#define CV_LOG_ERROR(tag, ...)   CV_LOG_WITH_TAG(tag, cv::utils::logging::LL_ERROR, , , __VA_ARGS__)
+#define CV_LOG_WARNING(tag, ...) CV_LOG_WITH_TAG(tag, cv::utils::logging::LL_WARNING, , , __VA_ARGS__)
+#define CV_LOG_INFO(tag, ...) CV_LOG_WITH_TAG(tag, cv::utils::logging::LL_INFO, , , __VA_ARGS__)
+#define CV_LOG_DEBUG(tag, ...) CV_LOG_WITH_TAG(tag, cv::utils::logging::LL_DEBUG, , , __VA_ARGS__)
+#define CV_LOG_VERBOSE(tag, v, ...) CV_LOG_WITH_TAG(tag, (cv::utils::logging::LL_VERBOSE + (int)(v)), , , __VA_ARGS__)
 
 #if CV_LOG_STRIP_LEVEL <= CV_LOG_LEVEL_INFO
 #undef CV_LOG_INFO
@@ -164,11 +164,11 @@ struct LogTagAuto
 
 // CV_LOG_ONCE_XXX macros
 
-#define CV_LOG_ONCE_ERROR(tag, ...) CV_LOG_WITH_TAG(tag, cv::utils::logging::LOG_LEVEL_ERROR, CV__LOG_ONCE_CHECK_PRE, CV__LOG_ONCE_CHECK_POST, __VA_ARGS__)
-#define CV_LOG_ONCE_WARNING(tag, ...) CV_LOG_WITH_TAG(tag, cv::utils::logging::LOG_LEVEL_WARNING, CV__LOG_ONCE_CHECK_PRE, CV__LOG_ONCE_CHECK_POST, __VA_ARGS__)
-#define CV_LOG_ONCE_INFO(tag, ...) CV_LOG_WITH_TAG(tag, cv::utils::logging::LOG_LEVEL_INFO, CV__LOG_ONCE_CHECK_PRE, CV__LOG_ONCE_CHECK_POST, __VA_ARGS__)
-#define CV_LOG_ONCE_DEBUG(tag, ...) CV_LOG_WITH_TAG(tag, cv::utils::logging::LOG_LEVEL_DEBUG, CV__LOG_ONCE_CHECK_PRE, CV__LOG_ONCE_CHECK_POST, __VA_ARGS__)
-#define CV_LOG_ONCE_VERBOSE(tag, v, ...) CV_LOG_WITH_TAG(tag, (cv::utils::logging::LOG_LEVEL_VERBOSE + (int)(v)), CV__LOG_ONCE_CHECK_PRE, CV__LOG_ONCE_CHECK_POST, __VA_ARGS__)
+#define CV_LOG_ONCE_ERROR(tag, ...) CV_LOG_WITH_TAG(tag, cv::utils::logging::LL_ERROR, CV__LOG_ONCE_CHECK_PRE, CV__LOG_ONCE_CHECK_POST, __VA_ARGS__)
+#define CV_LOG_ONCE_WARNING(tag, ...) CV_LOG_WITH_TAG(tag, cv::utils::logging::LL_WARNING, CV__LOG_ONCE_CHECK_PRE, CV__LOG_ONCE_CHECK_POST, __VA_ARGS__)
+#define CV_LOG_ONCE_INFO(tag, ...) CV_LOG_WITH_TAG(tag, cv::utils::logging::LL_INFO, CV__LOG_ONCE_CHECK_PRE, CV__LOG_ONCE_CHECK_POST, __VA_ARGS__)
+#define CV_LOG_ONCE_DEBUG(tag, ...) CV_LOG_WITH_TAG(tag, cv::utils::logging::LL_DEBUG, CV__LOG_ONCE_CHECK_PRE, CV__LOG_ONCE_CHECK_POST, __VA_ARGS__)
+#define CV_LOG_ONCE_VERBOSE(tag, v, ...) CV_LOG_WITH_TAG(tag, (cv::utils::logging::LL_VERBOSE + (int)(v)), CV__LOG_ONCE_CHECK_PRE, CV__LOG_ONCE_CHECK_POST, __VA_ARGS__)
 
 #if CV_LOG_STRIP_LEVEL <= CV_LOG_LEVEL_INFO
 #undef CV_LOG_ONCE_INFO
@@ -188,12 +188,12 @@ struct LogTagAuto
 
 // CV_LOG_IF_XXX macros
 
-#define CV_LOG_IF_FATAL(tag, logging_cond, ...) CV_LOG_WITH_TAG(tag, cv::utils::logging::LOG_LEVEL_FATAL, , CV__LOG_IF_CHECK(logging_cond), __VA_ARGS__)
-#define CV_LOG_IF_ERROR(tag, logging_cond, ...) CV_LOG_WITH_TAG(tag, cv::utils::logging::LOG_LEVEL_ERROR, , CV__LOG_IF_CHECK(logging_cond), __VA_ARGS__)
-#define CV_LOG_IF_WARNING(tag, logging_cond, ...) CV_LOG_WITH_TAG(tag, cv::utils::logging::LOG_LEVEL_WARNING, , CV__LOG_IF_CHECK(logging_cond), __VA_ARGS__)
-#define CV_LOG_IF_INFO(tag, logging_cond, ...) CV_LOG_WITH_TAG(tag, cv::utils::logging::LOG_LEVEL_INFO, , CV__LOG_IF_CHECK(logging_cond), __VA_ARGS__)
-#define CV_LOG_IF_DEBUG(tag, logging_cond, ...) CV_LOG_WITH_TAG(tag, cv::utils::logging::LOG_LEVEL_DEBUG, , CV__LOG_IF_CHECK(logging_cond), __VA_ARGS__)
-#define CV_LOG_IF_VERBOSE(tag, v, logging_cond, ...) CV_LOG_WITH_TAG(tag, (cv::utils::logging::LOG_LEVEL_VERBOSE + (int)(v)), , CV__LOG_IF_CHECK(logging_cond), __VA_ARGS__)
+#define CV_LOG_IF_FATAL(tag, logging_cond, ...) CV_LOG_WITH_TAG(tag, cv::utils::logging::LL_FATAL, , CV__LOG_IF_CHECK(logging_cond), __VA_ARGS__)
+#define CV_LOG_IF_ERROR(tag, logging_cond, ...) CV_LOG_WITH_TAG(tag, cv::utils::logging::LL_ERROR, , CV__LOG_IF_CHECK(logging_cond), __VA_ARGS__)
+#define CV_LOG_IF_WARNING(tag, logging_cond, ...) CV_LOG_WITH_TAG(tag, cv::utils::logging::LL_WARNING, , CV__LOG_IF_CHECK(logging_cond), __VA_ARGS__)
+#define CV_LOG_IF_INFO(tag, logging_cond, ...) CV_LOG_WITH_TAG(tag, cv::utils::logging::LL_INFO, , CV__LOG_IF_CHECK(logging_cond), __VA_ARGS__)
+#define CV_LOG_IF_DEBUG(tag, logging_cond, ...) CV_LOG_WITH_TAG(tag, cv::utils::logging::LL_DEBUG, , CV__LOG_IF_CHECK(logging_cond), __VA_ARGS__)
+#define CV_LOG_IF_VERBOSE(tag, v, logging_cond, ...) CV_LOG_WITH_TAG(tag, (cv::utils::logging::LL_VERBOSE + (int)(v)), , CV__LOG_IF_CHECK(logging_cond), __VA_ARGS__)
 
 #if CV_LOG_STRIP_LEVEL <= CV_LOG_LEVEL_INFO
 #undef CV_LOG_IF_INFO

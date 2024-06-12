@@ -355,7 +355,7 @@ void dumpValueInfoProto(int i, const opencv_onnx::ValueInfoProto& valueInfoProto
 static
 void dumpTensorProto(int i, const opencv_onnx::TensorProto& tensorProto, const std::string& prefix)
 {
-    if (utils::logging::getLogLevel() < utils::logging::LOG_LEVEL_VERBOSE)
+    if (utils::logging::getLogLevel() < utils::logging::LL_VERBOSE)
         return;
     int dim_size = tensorProto.dims_size();
     CV_CheckGE(dim_size, 0, "");

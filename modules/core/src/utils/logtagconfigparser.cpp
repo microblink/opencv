@@ -192,7 +192,7 @@ void LogTagConfigParser::parseWildcard(const std::string& name, LogLevel level)
 
 std::pair<LogLevel, bool> LogTagConfigParser::parseLogLevel(const std::string& s)
 {
-    const auto falseDontCare = std::make_pair(LOG_LEVEL_VERBOSE, false);
+    const auto falseDontCare = std::make_pair(LL_VERBOSE, false);
     const auto make_parsed_result = [](LogLevel lev) -> std::pair<LogLevel, bool>
     {
         return std::make_pair(lev, true);
@@ -206,60 +206,60 @@ std::pair<LogLevel, bool> LogTagConfigParser::parseLogLevel(const std::string& s
         case '0':
             if (len == 1u)
             {
-                return make_parsed_result(LOG_LEVEL_SILENT);
+                return make_parsed_result(LL_SILENT);
             }
             break;
         case 'D':
             if (len == 1u ||
                 (len == 5u && cv::toUpperCase(s) == "DEBUG"))
             {
-                return make_parsed_result(LOG_LEVEL_DEBUG);
+                return make_parsed_result(LL_DEBUG);
             }
             if ((len == 7u && cv::toUpperCase(s) == "DISABLE") ||
                 (len == 8u && cv::toUpperCase(s) == "DISABLED"))
             {
-                return make_parsed_result(LOG_LEVEL_SILENT);
+                return make_parsed_result(LL_SILENT);
             }
             break;
         case 'E':
             if (len == 1u ||
                 (len == 5u && cv::toUpperCase(s) == "ERROR"))
             {
-                return make_parsed_result(LOG_LEVEL_ERROR);
+                return make_parsed_result(LL_ERROR);
             }
             break;
         case 'F':
             if (len == 1u ||
                 (len == 5u && cv::toUpperCase(s) == "FATAL"))
             {
-                return make_parsed_result(LOG_LEVEL_FATAL);
+                return make_parsed_result(LL_FATAL);
             }
             break;
         case 'I':
             if (len == 1u ||
                 (len == 4u && cv::toUpperCase(s) == "INFO"))
             {
-                return make_parsed_result(LOG_LEVEL_INFO);
+                return make_parsed_result(LL_INFO);
             }
             break;
         case 'O':
             if (len == 3u && cv::toUpperCase(s) == "OFF")
             {
-                return make_parsed_result(LOG_LEVEL_SILENT);
+                return make_parsed_result(LL_SILENT);
             }
             break;
         case 'S':
             if (len == 1u ||
                 (len == 6u && cv::toUpperCase(s) == "SILENT"))
             {
-                return make_parsed_result(LOG_LEVEL_SILENT);
+                return make_parsed_result(LL_SILENT);
             }
             break;
         case 'V':
             if (len == 1u ||
                 (len == 7u && cv::toUpperCase(s) == "VERBOSE"))
             {
-                return make_parsed_result(LOG_LEVEL_VERBOSE);
+                return make_parsed_result(LL_VERBOSE);
             }
             break;
         case 'W':
@@ -268,7 +268,7 @@ std::pair<LogLevel, bool> LogTagConfigParser::parseLogLevel(const std::string& s
                 (len == 7u && cv::toUpperCase(s) == "WARNING") ||
                 (len == 8u && cv::toUpperCase(s) == "WARNINGS"))
             {
-                return make_parsed_result(LOG_LEVEL_WARNING);
+                return make_parsed_result(LL_WARNING);
             }
             break;
         default:
@@ -283,19 +283,19 @@ std::string LogTagConfigParser::toString(LogLevel level)
 {
     switch (level)
     {
-    case LOG_LEVEL_SILENT:
+    case LL_SILENT:
         return "SILENT";
-    case LOG_LEVEL_FATAL:
+    case LL_FATAL:
         return "FATAL";
-    case LOG_LEVEL_ERROR:
+    case LL_ERROR:
         return "ERROR";
-    case LOG_LEVEL_WARNING:
+    case LL_WARNING:
         return "WARNING";
-    case LOG_LEVEL_INFO:
+    case LL_INFO:
         return "INFO";
-    case LOG_LEVEL_DEBUG:
+    case LL_DEBUG:
         return "DEBUG";
-    case LOG_LEVEL_VERBOSE:
+    case LL_VERBOSE:
         return "VERBOSE";
     default:
         return std::to_string((int)level);

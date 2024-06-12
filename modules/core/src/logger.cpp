@@ -77,8 +77,8 @@ private:
 };
 
 LogLevel GlobalLoggingInitStruct::m_defaultUnconfiguredGlobalLevel = GlobalLoggingInitStruct::m_isDebugBuild
-                ? LOG_LEVEL_INFO
-                : LOG_LEVEL_WARNING;
+                ? LL_INFO
+                : LL_WARNING;
 
 
 // Static dynamic initialization guard function for the combined struct
@@ -203,33 +203,33 @@ void writeLogMessage(LogLevel logLevel, const char* message)
     std::ostringstream ss;
     switch (logLevel)
     {
-    case LOG_LEVEL_FATAL:   ss << "[FATAL:" << message_id << "] " << message << std::endl; break;
-    case LOG_LEVEL_ERROR:   ss << "[ERROR:" << message_id << "] " << message << std::endl; break;
-    case LOG_LEVEL_WARNING: ss << "[ WARN:" << message_id << "] " << message << std::endl; break;
-    case LOG_LEVEL_INFO:    ss << "[ INFO:" << message_id << "] " << message << std::endl; break;
-    case LOG_LEVEL_DEBUG:   ss << "[DEBUG:" << message_id << "] " << message << std::endl; break;
-    case LOG_LEVEL_VERBOSE: ss << message << std::endl; break;
-    case LOG_LEVEL_SILENT: return;  // avoid compiler warning about incomplete switch
+    case LL_FATAL:   ss << "[FATAL:" << message_id << "] " << message << std::endl; break;
+    case LL_ERROR:   ss << "[ERROR:" << message_id << "] " << message << std::endl; break;
+    case LL_WARNING: ss << "[ WARN:" << message_id << "] " << message << std::endl; break;
+    case LL_INFO:    ss << "[ INFO:" << message_id << "] " << message << std::endl; break;
+    case LL_DEBUG:   ss << "[DEBUG:" << message_id << "] " << message << std::endl; break;
+    case LL_VERBOSE: ss << message << std::endl; break;
+    case LL_SILENT: return;  // avoid compiler warning about incomplete switch
     case ENUM_LOG_LEVEL_FORCE_INT: return;  // avoid compiler warning about incomplete switch
     }
 #ifdef __ANDROID__
     int android_logLevel = ANDROID_LOG_INFO;
     switch (logLevel)
     {
-    case LOG_LEVEL_FATAL:   android_logLevel = ANDROID_LOG_FATAL; break;
-    case LOG_LEVEL_ERROR:   android_logLevel = ANDROID_LOG_ERROR; break;
-    case LOG_LEVEL_WARNING: android_logLevel = ANDROID_LOG_WARN; break;
-    case LOG_LEVEL_INFO:    android_logLevel = ANDROID_LOG_INFO; break;
-    case LOG_LEVEL_DEBUG:   android_logLevel = ANDROID_LOG_DEBUG; break;
-    case LOG_LEVEL_VERBOSE: android_logLevel = ANDROID_LOG_VERBOSE; break;
+    case LL_FATAL:   android_logLevel = ANDROID_LOG_FATAL; break;
+    case LL_ERROR:   android_logLevel = ANDROID_LOG_ERROR; break;
+    case LL_WARNING: android_logLevel = ANDROID_LOG_WARN; break;
+    case LL_INFO:    android_logLevel = ANDROID_LOG_INFO; break;
+    case LL_DEBUG:   android_logLevel = ANDROID_LOG_DEBUG; break;
+    case LL_VERBOSE: android_logLevel = ANDROID_LOG_VERBOSE; break;
     default:
         break;
     }
     __android_log_print(android_logLevel, "OpenCV/" CV_VERSION, "%s", ss.str().c_str());
 #endif
-    std::ostream* out = (logLevel <= LOG_LEVEL_WARNING) ? &std::cerr : &std::cout;
+    std::ostream* out = (logLevel <= LL_WARNING) ? &std::cerr : &std::cout;
     (*out) << ss.str();
-    if (logLevel <= LOG_LEVEL_WARNING)
+    if (logLevel <= LL_WARNING)
         (*out) << std::flush;
 }
 

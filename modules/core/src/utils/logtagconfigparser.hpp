@@ -21,7 +21,7 @@ namespace logging {
 class LogTagConfigParser
 {
 public:
-    LogTagConfigParser(LogLevel defaultUnconfiguredGlobalLevel = LOG_LEVEL_VERBOSE);
+    LogTagConfigParser(LogLevel defaultUnconfiguredGlobalLevel = LL_VERBOSE);
     explicit LogTagConfigParser(const std::string& input);
     ~LogTagConfigParser();
 

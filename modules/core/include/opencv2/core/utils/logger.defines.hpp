@@ -23,13 +23,13 @@ namespace logging {
 
 //! Supported logging levels and their semantic
 enum LogLevel {
-    LOG_LEVEL_SILENT = 0,              //!< for using in setLogVevel() call
-    LOG_LEVEL_FATAL = 1,               //!< Fatal (critical) error (unrecoverable internal error)
-    LOG_LEVEL_ERROR = 2,               //!< Error message
-    LOG_LEVEL_WARNING = 3,             //!< Warning message
-    LOG_LEVEL_INFO = 4,                //!< Info message
-    LOG_LEVEL_DEBUG = 5,               //!< Debug message. Disabled in the "Release" build.
-    LOG_LEVEL_VERBOSE = 6,             //!< Verbose (trace) messages. Requires verbosity level. Disabled in the "Release" build.
+    LL_SILENT = 0,              //!< for using in setLogVevel() call
+    LL_FATAL = 1,               //!< Fatal (critical) error (unrecoverable internal error)
+    LL_ERROR = 2,               //!< Error message
+    LL_WARNING = 3,             //!< Warning message
+    LL_INFO = 4,                //!< Info message
+    LL_DEBUG = 5,               //!< Debug message. Disabled in the "Release" build.
+    LL_VERBOSE = 6,             //!< Verbose (trace) messages. Requires verbosity level. Disabled in the "Release" build.
 #ifndef CV_DOXYGEN
     ENUM_LOG_LEVEL_FORCE_INT = INT_MAX
 #endif

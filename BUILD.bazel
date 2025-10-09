@@ -210,6 +210,8 @@ expand_template(
         "#cmakedefine HAVE_OPENGL": "/* #undef HAVE_OPENGL */",
         "#cmakedefine HAVE_PNG": "#define HAVE_PNG 1",
         "#cmakedefine HAVE_SPNG": "/* #undef HAVE_SPNG */",
+        "#cmakedefine HAVE_PTHREADS_PF": "/* #undef HAVE_PTHREADS_PF */",
+        "#cmakedefine HAVE_SWEATER": "#define HAVE_SWEATER 1",
         "#cmakedefine HAVE_TBB": "/* #undef HAVE_TBB */",
         "#cmakedefine HAVE_HPX": "/* #undef HAVE_HPX */",
         "#cmakedefine HAVE_TIFF": "#define HAVE_TIFF 1",
@@ -222,11 +224,9 @@ expand_template(
         "#cmakedefine HAVE_UNIFONT": "/* undef HAVE_UNIFONT */",
     } | select({
         "@platforms//os:windows": {
-            "#cmakedefine HAVE_PTHREADS_PF": "/* #undef HAVE_PTHREADS_PF */",
             "#cmakedefine HAVE_PTHREAD": "/* #undef HAVE_PTHREAD */",
         },
         "//conditions:default": {
-            "#cmakedefine HAVE_PTHREADS_PF": "#define HAVE_PTHREADS_PF",
             "#cmakedefine HAVE_PTHREAD": "#define HAVE_PTHREAD",
         },
     }) | select({

@@ -39,8 +39,8 @@ OPENCV_OPTIMIZATION_COPTS = select({
     ],
     "//:debug_build": [],
     "//conditions:default": [
-        "-Os",
-    ],
+        "-Oz",
+    ]
 })
 
 # NOTE: The copts here are compatible with GCC and Clang, except for PPCLE64 which are clang-specific.

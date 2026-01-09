@@ -14,7 +14,7 @@ OPENCV_COPTS = [
 OPENCV_OPTIMIZATION_COPTS = select({
     "//:debug_build": [],
     "//conditions:default": [
-        "-Os",
+        "-Oz",
     ]
 })
 

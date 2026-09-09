@@ -4,6 +4,8 @@
 
 #include "precomp.hpp"
 
+#include <iterator>
+
 namespace cv {
 
 void reprojectImageTo3D( InputArray _disparity, OutputArray __3dImage,

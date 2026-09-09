@@ -5,6 +5,9 @@ load("@rules_cc//cc:cc_test.bzl", "cc_test")
 # Select MSVC-style flags for both cl.exe and clang-cl.exe. The compiler identifiers
 # are provided by rules_cc and come from the selected C++ toolchain.
 def _compiler_copts(copts, cl_copts):
+    if type(copts) == "select":
+        return copts
+
     return select({
         "@rules_cc//cc/compiler:clang-cl": cl_copts,
         "@rules_cc//cc/compiler:msvc-cl": cl_copts,
